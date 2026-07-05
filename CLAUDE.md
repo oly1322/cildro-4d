@@ -143,6 +143,18 @@ Higgsfield workflow (owner-approved): `media_upload` → presigned URL → curl
 PUT → `media_confirm` → `generate_image` (nano_banana_pro) with his real
 photo as `medias` reference.
 
+## Safari/WebKit fast path (Jul 2026)
+
+WebKit composites blend-modes/backdrop-filter/animated overlays far
+slower than Blink. `App.jsx` adds `.wk` to <html> on `navigator.vendor
+=== 'Apple Computer, Inc.'` (must stay in App.jsx, NOT main.jsx — host
+shells like Lovable mount <App/> from their own entry and never run our
+main.jsx). index.css `.wk` rules: blend-difference HUD/cursor → bone +
+shadow, backdrop-blur off, grain static. The canvas is opaque
+(alpha:false) and cleared to #17120D via `gl.setClearColor` in onCreated
+— do NOT switch to `<color attach="background">`, it gets ACES
+tone-mapped and seams against the DOM ink.
+
 ## Dev/verification gotchas (hard-won)
 
 - Textures load via `useLoadedTextures` (plain TextureLoader + state) — drei
