@@ -78,6 +78,23 @@ export default function App() {
     }
   }, [fx])
 
+  // re-measure whenever the document can have changed height AFTER the
+  // initial measurements: preloader lift, late webfonts (production shells
+  // load them post-onload), and window load. Without this, first-load phase
+  // positions are stale on iOS until something else triggers a refresh —
+  // the "works after backgrounding the tab" bug.
+  useEffect(() => {
+    if (!started) return
+    const refresh = () => ScrollTrigger.refresh()
+    const raf = requestAnimationFrame(refresh)
+    if (document.fonts?.ready) document.fonts.ready.then(refresh).catch(() => {})
+    window.addEventListener('load', refresh)
+    return () => {
+      cancelAnimationFrame(raf)
+      window.removeEventListener('load', refresh)
+    }
+  }, [started])
+
   useEffect(() => {
     if (!lenisRef.current) return
     dirOpen ? lenisRef.current.stop() : lenisRef.current.start()
