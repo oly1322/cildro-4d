@@ -559,8 +559,14 @@ export default function ExperienceCanvas() {
     <Canvas
       dpr={light ? [1, 1.5] : [1, 1.8]}
       camera={{ fov: 30, position: [2.7, 1.6, 3.6] }}
-      gl={{ antialias: true, alpha: true, powerPreference: 'high-performance', stencil: false }}
-      onCreated={({ camera }) => {
+      gl={{ antialias: true, alpha: false, powerPreference: 'high-performance', stencil: false }}
+      onCreated={({ camera, gl }) => {
+        // opaque canvas cleared to the exact page ink: identical look to the
+        // old transparent canvas over the ink DOM, but the compositor no
+        // longer alpha-blends a fullscreen 3D layer every frame (Safari!).
+        // setClearColor bypasses tone mapping — <color attach="background">
+        // would get ACES-shifted and seam against the DOM background.
+        gl.setClearColor('#17120D', 1)
         if (import.meta.env.DEV) window.__cam = camera
       }}
     >

@@ -70,6 +70,34 @@ body {
   margin-bottom: -100dvh;
 }
 
+/* ── WebKit fast path (.wk on <html>, set in main.jsx) ────────────────────
+   Safari/WebKit composites blend-modes, backdrop-filter and animated
+   overlays far slower than Blink — swap them for cheap equivalents.
+   Design intent preserved: HUD/cursor stay readable over the pale board
+   via bone + shadow instead of difference-inversion. */
+.wk .grain::after {
+  animation: none;
+}
+.wk .mix-blend-difference {
+  mix-blend-mode: normal;
+  color: var(--bone);
+  text-shadow:
+    0 1px 10px rgba(23, 18, 13, 0.85),
+    0 0 3px rgba(23, 18, 13, 0.6);
+}
+.wk .mix-blend-difference [class*='bg-white'] {
+  box-shadow: 0 0 0 1px rgba(23, 18, 13, 0.4);
+}
+.wk #cursor {
+  mix-blend-mode: normal;
+  color: var(--bone);
+  filter: drop-shadow(0 1px 2px rgba(23, 18, 13, 0.9));
+}
+.wk [class*='backdrop-blur'] {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
 /* ── compact hero for short phone viewports ───────────────────────────────
    6.1–6.3" phones (e.g. iPhone 17 Pro) have less CSS height than the Max
    models once Safari's chrome is up — shrink the hero stack so the stats

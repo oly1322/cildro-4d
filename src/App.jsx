@@ -21,6 +21,15 @@ import S09Quote from './components/sections/S09Quote.jsx'
 
 const ExperienceCanvas = lazy(() => import('./components/Experience.jsx'))
 
+// WebKit (Safari on Mac + every iPhone browser) composites blend-modes,
+// backdrop-filter and animated overlays far slower than Blink — index.css
+// swaps those for cheap equivalents under the .wk class. Lives here (not
+// main.jsx) so it also runs when a host shell mounts <App/> via its own
+// entry. vendor is the reliable engine check: all WebKit, never Blink.
+if (typeof navigator !== 'undefined' && navigator.vendor === 'Apple Computer, Inc.') {
+  document.documentElement.classList.add('wk')
+}
+
 export default function App() {
   const { fx, webgl } = useMotion()
   const [started, setStarted] = useState(false)
