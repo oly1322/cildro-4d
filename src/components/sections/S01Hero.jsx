@@ -110,10 +110,11 @@ export default function S01Hero({ started }) {
           aria-hidden="true"
         />
 
-        {/* copy */}
+        {/* copy — .hero-copy gets a compact treatment on short phones
+            (index.css) so the stats never collide with the FIG/ticker rows */}
         <div
           ref={copyRef}
-          className="relative z-10 h-full flex flex-col justify-start md:justify-center px-5 md:px-16 max-w-[920px] pt-24 md:pt-16 pb-28"
+          className="hero-copy relative z-10 h-full flex flex-col justify-start md:justify-center px-5 md:px-16 max-w-[920px] pt-24 md:pt-16 pb-28"
         >
           <p className="hero-fade mlabel text-accent mb-4 flex items-center gap-3">
             <span className="regmark" aria-hidden="true" />
@@ -125,7 +126,7 @@ export default function S01Hero({ started }) {
           >
             {copy.hero.headline}
           </h1>
-          <p className="hero-fade font-body text-[13px] md:text-[15px] text-bone/70 max-w-[58ch] mt-4 leading-relaxed">
+          <p className="hero-sub hero-fade font-body text-[13px] md:text-[15px] text-bone/70 max-w-[58ch] mt-4 leading-relaxed">
             {copy.hero.sub}
           </p>
 
@@ -148,7 +149,7 @@ export default function S01Hero({ started }) {
             {copy.hero.ctas.samplesNote}
           </p>
 
-          <div className="hero-fade grid grid-cols-3 gap-px bg-bone/10 border border-bone/10 mt-4 md:mt-7 max-w-xl">
+          <div className="hero-stats hero-fade grid grid-cols-3 gap-px bg-bone/10 border border-bone/10 mt-4 md:mt-7 max-w-xl">
             {copy.hero.stats.map((st) => (
               <div key={st.label} className="bg-ink/80 px-2.5 py-2 md:px-4 md:py-3">
                 <div className="font-display text-lg md:text-2xl text-honey">
@@ -170,7 +171,9 @@ export default function S01Hero({ started }) {
           </div>
         </div>
 
-        <div className="absolute bottom-0 inset-x-0 z-10">
+        {/* gradient backstop: even a near-collision with the copy above can
+            never read as broken text-through-text */}
+        <div className="absolute bottom-0 inset-x-0 z-10 bg-gradient-to-t from-ink/85 via-ink/40 to-transparent">
           <div className="flex justify-between px-5 md:px-8 pb-2">
             <span className="mlabel text-bone/40">FIG. 01 — product: 100% beech multiply</span>
             <span className="mlabel text-bone/40 animate-pulse">(scroll down)</span>

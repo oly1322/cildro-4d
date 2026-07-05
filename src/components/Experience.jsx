@@ -552,12 +552,12 @@ function Rig() {
 /* ── canvas shell ─────────────────────────────────────────────────────── */
 
 export default function ExperienceCanvas() {
-  // phones: cap dpr at 1.6 — on a 3× screen that is ~3.5× fewer pixels than
+  // phones: cap dpr at 1.5 — on a 3× screen that is ~4× fewer pixels than
   // native for a render nobody can tell apart at arm's length
   const light = wantsLightAssets()
   return (
     <Canvas
-      dpr={light ? [1, 1.6] : [1, 1.8]}
+      dpr={light ? [1, 1.5] : [1, 1.8]}
       camera={{ fov: 30, position: [2.7, 1.6, 3.6] }}
       gl={{ antialias: true, alpha: true, powerPreference: 'high-performance', stencil: false }}
       onCreated={({ camera }) => {

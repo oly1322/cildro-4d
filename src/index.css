@@ -70,6 +70,43 @@ body {
   margin-bottom: -100dvh;
 }
 
+/* ── compact hero for short phone viewports ───────────────────────────────
+   6.1–6.3" phones (e.g. iPhone 17 Pro) have less CSS height than the Max
+   models once Safari's chrome is up — shrink the hero stack so the stats
+   row never collides with the FIG caption / ticker. */
+@media (max-width: 767px) and (max-height: 790px) {
+  .hero-copy {
+    padding-top: 4.5rem;
+    padding-bottom: 6.25rem;
+  }
+  .hero-copy > .mlabel {
+    margin-bottom: 0.5rem;
+  }
+  .hero-copy .h-display {
+    font-size: 8.6vw;
+  }
+  .hero-copy .hero-sub {
+    font-size: 12px;
+    margin-top: 0.6rem;
+  }
+  .hero-copy .hero-fade.grid {
+    margin-top: 0.85rem;
+  }
+  .hero-copy .btn {
+    padding-top: 0.8rem;
+    padding-bottom: 0.8rem;
+  }
+  .hero-copy .hero-stats {
+    margin-top: 0.75rem;
+  }
+  .hero-copy .hero-stats > div {
+    padding: 0.45rem 0.6rem;
+  }
+  .hero-copy .hero-stats .font-display {
+    font-size: 1rem;
+  }
+}
+
 /* hide scrollbars on mobile snap carousels */
 .no-scrollbar {
   -ms-overflow-style: none;
