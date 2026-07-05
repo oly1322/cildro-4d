@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { gsap } from '../lib/fx.js'
 import { useMotion } from '../lib/motion.jsx'
-import { criticalTextureUrls, wantsLightAssets } from '../lib/textures.js'
+import { rigTextureUrls, wantsLightAssets } from '../lib/textures.js'
 
 /* static-fallback assets (no-WebGL / reduced-motion path) */
 const PRELOAD_STATIC = [
@@ -13,18 +13,21 @@ const PRELOAD_STATIC = [
 
 export default function Preloader({ onDone }) {
   const { reduced, webgl } = useMotion()
+  const use3d = !reduced && webgl
   const rootRef = useRef(null)
   const [pct, setPct] = useState(0)
   const [stamped, setStamped] = useState(false)
 
-  // on the 3D path, warm the rig's first-paint textures (device-sized) so the
-  // canvas is already painted the moment the preloader lifts
+  // 3D path: the curtain tracks EVERY rig texture (device-sized set), the
+  // lazy three.js/Experience chunk, and the rig's own ready signal — on
+  // production networks these arrive seconds after the DOM, and lifting
+  // early means scrolling into an empty scene
   const preload = useMemo(
     () =>
-      !reduced && webgl
-        ? [...criticalTextureUrls(wantsLightAssets()), '/images/cildro-logo.webp']
+      use3d
+        ? [...rigTextureUrls(wantsLightAssets()), '/images/cildro-logo.webp']
         : PRELOAD_STATIC,
-    [reduced, webgl]
+    [use3d]
   )
 
   useEffect(() => {
@@ -37,16 +40,30 @@ export default function Preloader({ onDone }) {
     let display = 0
     let done = false
     const start = performance.now()
+    // +1 chunk, +1 rig-ready (3D only)
+    const total = preload.length + (use3d ? 2 : 0)
 
     preload.forEach((src) => {
       const img = new Image()
       img.onload = img.onerror = () => (loaded += 1)
       img.src = src
     })
+    let onRig = null
+    if (use3d) {
+      // same chunk App lazy-loads — Vite dedupes, this just starts it NOW
+      import('./Experience.jsx').then(
+        () => (loaded += 1),
+        () => (loaded += 1)
+      )
+      onRig = () => (loaded += 1)
+      window.addEventListener('xp:rig-ready', onRig, { once: true })
+    }
 
     const iv = setInterval(() => {
-      const real = (loaded / preload.length) * 100
-      const minTime = Math.min(((performance.now() - start) / 1400) * 100, 100)
+      const elapsed = performance.now() - start
+      // safety valve: a WebGL/network failure must never trap the visitor
+      const real = elapsed > 12000 ? 100 : (loaded / total) * 100
+      const minTime = Math.min((elapsed / 1400) * 100, 100)
       display = Math.min(real, minTime)
       setPct(Math.round(display))
       if (display >= 100 && !done) {
@@ -75,9 +92,10 @@ export default function Preloader({ onDone }) {
     }, 40)
     return () => {
       clearInterval(iv)
+      if (onRig) window.removeEventListener('xp:rig-ready', onRig)
       document.documentElement.style.overflow = ''
     }
-  }, [reduced, onDone, preload])
+  }, [reduced, onDone, preload, use3d])
 
   if (reduced) return null
   return (

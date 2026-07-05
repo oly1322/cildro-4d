@@ -129,6 +129,12 @@ function Rig() {
   const light = useMemo(() => wantsLightAssets(), [])
   const textures = useLoadedTextures(rigTextureUrls(light))
 
+  // tell the Preloader the scene is actually paintable — it holds the
+  // curtain until this fires (production networks are not localhost)
+  useEffect(() => {
+    if (textures) window.dispatchEvent(new Event('xp:rig-ready'))
+  }, [textures])
+
   const built = useMemo(() => {
     if (!textures) return null
     const [ge, gi, gii, giii, giv, edgeMacro, filmMesh, birchF, softF, dmgBe, dmgBi, dmgSo] = textures

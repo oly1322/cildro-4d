@@ -102,8 +102,13 @@ desktop. All branching lives in Experience.jsx's useFrame:
   Regenerate mobile textures after swapping masters:
   `sips -Z 1024 -s format jpeg -s formatOptions 62 <src> --out public/images/m/<name>.jpg`
   (damage decals at 512).
-- Preloader warms `criticalTextureUrls()` (device-correct set) on the 3D
-  path so the canvas is painted when the curtain lifts.
+- **Preloader gates on real 3D readiness** (production fix — on live
+  hosting the lazy three chunk + textures arrive seconds after the DOM,
+  and lifting early = scrolling into an empty scene): it tracks ALL 12
+  rig textures + the Experience chunk + the rig's `xp:rig-ready` event,
+  with a 12 s safety valve. Desktop rig loads the web-optimized
+  `/images/d` set (~2.5 MB, 1792px) — masters in grades//textures/ are
+  provenance + DOM-image use only, the rig never reads them directly.
 - Pinned viewports use `.h-viewport` / `.-mb-viewport` (100dvh with 100vh
   fallback, index.css) — do NOT reintroduce `h-screen` there (iOS URL-bar).
   Bottom overlays use `bottom-[calc(…+env(safe-area-inset-bottom))]`;
