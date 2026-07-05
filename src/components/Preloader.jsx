@@ -35,7 +35,12 @@ export default function Preloader({ onDone }) {
       onDone()
       return
     }
-    document.documentElement.style.overflow = 'hidden'
+    // scroll lock: desktop only. Toggling overflow on <html> leaves WebKit's
+    // position:sticky constraints stale after release (broken pinning on iOS
+    // until the tab is backgrounded) — on touch, the curtain itself blocks
+    // scroll gestures via touch-action:none instead.
+    const lockScroll = window.matchMedia('(pointer: fine)').matches
+    if (lockScroll) document.documentElement.style.overflow = 'hidden'
     let loaded = 0
     let display = 0
     let done = false
@@ -101,7 +106,7 @@ export default function Preloader({ onDone }) {
   return (
     <div
       ref={rootRef}
-      className="fixed inset-0 z-[120] bg-ink text-bone flex flex-col items-center justify-center"
+      className="fixed inset-0 z-[120] bg-ink text-bone flex flex-col items-center justify-center touch-none overscroll-contain"
       aria-hidden="true"
     >
       <div className="mlabel text-bone/50 mb-6">CILDRO PLYWOOD — MILL FILE 2013—2026</div>

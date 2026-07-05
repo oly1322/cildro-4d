@@ -86,7 +86,16 @@ export default function App() {
   useEffect(() => {
     if (!started) return
     const refresh = () => ScrollTrigger.refresh()
-    const raf = requestAnimationFrame(refresh)
+    // WebKit can leave position:sticky constraints stale on a cold load —
+    // invalidate them once (relative → reflow → sticky), then re-measure
+    const nudge = () => {
+      const stickies = document.querySelectorAll('.sticky')
+      stickies.forEach((el) => (el.style.position = 'relative'))
+      void document.body.offsetHeight
+      stickies.forEach((el) => (el.style.position = ''))
+      refresh()
+    }
+    const raf = requestAnimationFrame(nudge)
     if (document.fonts?.ready) document.fonts.ready.then(refresh).catch(() => {})
     window.addEventListener('load', refresh)
     return () => {

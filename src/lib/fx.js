@@ -2,9 +2,6 @@ import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
 gsap.registerPlugin(ScrollTrigger)
-// iOS: don't re-measure on URL-bar collapse (height-only resizes) — prevents
-// mid-scroll jumps; rotation still refreshes because width changes
-ScrollTrigger.config({ ignoreMobileResize: true })
 export { gsap, ScrollTrigger }
 
 if (import.meta.env.DEV) {
