@@ -111,8 +111,13 @@ desktop. All branching lives in Experience.jsx's useFrame:
   with a 12 s safety valve. Desktop rig loads the web-optimized
   `/images/d` set (~2.5 MB, 1792px) — masters in grades//textures/ are
   provenance + DOM-image use only, the rig never reads them directly.
-- Pinned viewports use `.h-viewport` / `.-mb-viewport` (100dvh with 100vh
-  fallback, index.css) — do NOT reintroduce `h-screen` there (iOS URL-bar).
+- Pinned viewports use `.h-viewport` / `.-mb-viewport` (**100svh** with
+  100vh fallback, index.css) — NEVER dvh and never `h-screen`: dvh resizes
+  when the iOS toolbar collapses/expands, which resized the canvas
+  mid-scroll (visible 3D "zoom" + 2-3 janky frames on first scroll and on
+  bottom-edge taps) and put bottom controls in Safari's toolbar-reveal
+  dead zone (first tap eaten). svh is stable; the strip below the canvas
+  when the toolbar hides is invisible (clear color == page ink).
   Bottom overlays use `bottom-[calc(…+env(safe-area-inset-bottom))]`;
   viewport meta has `viewport-fit=cover`.
 - Mobile overlay layouts: hero = copy top / CTAs+stats bottom with a
@@ -207,6 +212,16 @@ Mobile section above): portrait camera framings, vertical impact trio,
 light texture set, dvh pinning, snap-carousel stats, touch/gyro parallax.
 Desktop regression-checked at 1440×900 (identical poses/textures/dpr).
 Still pending: QA on a real phone (only emulated so far).
+
+Jul 31 2026 — owner's Lovable-side edits ported back (from his repo
+github.com/oly1322/cildro-visual-genesis): SEO copy + owner-corrected
+specs in copy.js (Bonding Class 2, E0.5 — owner-supplied, do not
+"fix back"), REAL application photos + mill sign in public/images/apps/
+(S07 no longer uses placeholder slots), real grain macro webp, WebP
+<picture> hero, S08 crossfade, SEO head + JSON-LD graph + Google Ads
+gtag (AW-10989710316) in index.html. Deployed on Vercel (project
+cildro-4d, team cildro) — `npx vercel deploy --prod --yes` from repo
+root; Lovable deploy at b2b.cildroplywood.ro is the comparison/rollback.
 
 Open items:
 - Swap generated damage decals for the owner's real test photos when he
