@@ -39,18 +39,24 @@ export default function S06Grain() {
     >
       {/* dim base layer */}
       <img
-        src="/images/textures/grain-macro.jpg"
+        src="/images/textures/grain-macro-beech.webp"
         alt=""
         aria-hidden="true"
         loading="lazy"
+        decoding="async"
+        width="1920"
+        height="1072"
         className={`absolute inset-0 h-full w-full object-cover ${fx ? 'brightness-[0.22] saturate-[0.6]' : 'brightness-90'}`}
       />
       {/* lit layer revealed by the flashlight */}
       {fx && (
         <img
-          src="/images/textures/grain-macro.jpg"
+          src="/images/textures/grain-macro-beech.webp"
           alt="Macro of real Cildro beech grain — fine, dense fiber with warm honey tone"
           loading="lazy"
+          decoding="async"
+          width="1920"
+          height="1072"
           className="flashlight-lit absolute inset-0 h-full w-full object-cover scale-[1.02]"
         />
       )}

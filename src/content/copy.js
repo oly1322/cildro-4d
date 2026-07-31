@@ -17,7 +17,7 @@ const en = {
   hero: {
     banner:
       'Buying birch plywood? The panel you actually want is 100% European beech.',
-    headline: 'Denser, harder — 100% beech plywood made in EU.',
+    headline: 'European Beech Plywood — Denser and Harder, Made in EU.',
     sub: '100% European beech, pressed at our own EU mill to your exact spec — 750 kg/m³ and ≥25 N/mm² Brinell hard, denser and harder than any birch panel. Built for furniture, joinery, shopfitting and worktop manufacturers.',
     stats: [
       { value: '750', unit: 'kg/m³', label: 'density', note: '~15% over birch' },
@@ -44,8 +44,8 @@ const en = {
     callouts: [
       '100% BEECH CORE',
       'PRESSED AT OUR OWN EU MILL',
-      'BONDING CLASS 3 (EN-314-2)',
-      'E1 (EN-717-1)',
+      'BONDING CLASS 2 (EN-314-2)',
+      'E0.5 (EN-717-1)',
     ],
     // veneer + glue specs supplied directly by the owner (Andrei Olaru) in brief
     veneerNote: 'Peeled beech veneer — ~2.6 mm per ply, long grain / cross grain alternating',
@@ -81,8 +81,8 @@ const en = {
   },
 
   impact: {
-    title: 'The strongest panel in the room.',
-    sub: 'Same test, three materials. Softwood dents, birch holds, beech shrugs.',
+    title: 'Beech plywood vs birch plywood.',
+    sub: 'Same test, three materials. Beech barely dents, birch holds, softwood shrugs.',
     rows: [
       {
         id: 'beech',
@@ -184,7 +184,7 @@ const en = {
   },
 
   applications: {
-    title: 'Where Cildro beech goes to work',
+    title: 'Where beech plywood goes to work',
     also: 'Also: trailer flooring & vehicle bodies — see Cildro Shield.',
     items: [
       { label: 'Furniture & cabinetry', img: 'furniture-cabinetry.webp' },
@@ -213,7 +213,7 @@ const en = {
   },
 
   factory: {
-    title: 'No middlemen. One accountable partner.',
+    title: 'Your beech plywood supplier — no middlemen.',
     eyebrow: 'Factory-direct',
     points: [
       'Factory-direct pricing',
@@ -246,7 +246,7 @@ const en = {
   },
 
   specs: {
-    title: 'Technical specifications.',
+    title: 'Beech plywood specifications.',
     sub: 'Open it if you need it — everyone else can keep scrolling.',
     rows: [
       { k: 'Density', v: '750 kg/m³', std: 'EN-323' },
@@ -265,8 +265,12 @@ const en = {
     title: 'Questions buyers actually ask.',
     items: [
       {
-        q: 'Can beech really replace birch in my product?',
-        a: 'Yes — and it usually performs better. Denser (750 vs ~650 kg/m³) and harder than Baltic birch; free samples let your team prove it on their own machines.',
+        q: 'What is beech plywood?',
+        a: 'A hardwood panel pressed from European beech (Fagus sylvatica) veneers. Cildro beech plywood is 100% beech core — no filler species — 750 kg/m³ dense, ≥25 N/mm² Brinell hard, available 4–60 mm thick.',
+      },
+      {
+        q: 'How does beech plywood compare to birch plywood?',
+        a: 'Beech plywood is denser (750 vs ~650 kg/m³) and harder than Baltic birch, so it holds screws tighter and dents less. Anywhere birch worked, beech works at least as well — free samples let your team prove it on their own machines.',
       },
       {
         q: "What's the minimum order?",

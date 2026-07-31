@@ -3,7 +3,24 @@
  * but is not fetchable from the current b2b.cildroplywood.ro deployment.
  * Drop the real file into /public/images and swap this slot for an <img>.
  */
-export default function ImageSlot({ name, caption, ratio = '4/3', className = '' }) {
+export default function ImageSlot({ name, caption, ratio = '4/3', className = '', src, alt, width, height }) {
+  if (src) {
+    return (
+      <figure
+        className={`img-slot overflow-hidden bg-ink/5 ${className}`}
+        style={ratio && ratio !== 'auto' ? { aspectRatio: ratio } : undefined}
+      >
+        <img
+          src={src}
+          alt={alt || caption || name}
+          loading="lazy"
+          width={width}
+          height={height}
+          className="block w-full h-auto object-contain"
+        />
+      </figure>
+    )
+  }
   return (
     <figure
       className={`img-slot flex flex-col items-center justify-center text-center p-6 ${className}`}

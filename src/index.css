@@ -64,14 +64,21 @@ body {
 }
 .wk .grain::after { inset: 0; }
 
-/* ── dynamic-viewport helpers (iOS URL-bar safe) ──────────────────────── */
+/* ── stable-viewport helpers (iOS URL-bar safe) ───────────────────────────
+   svh, NOT dvh: dvh resizes when the iOS toolbar collapses/expands, which
+   resized the canvas mid-scroll — the 3D visibly "zoomed" and janked for
+   2-3 frames on first scroll and on bottom-edge taps. svh never changes
+   during scrolling; the ~90px strip below the canvas when the toolbar is
+   collapsed is invisible (canvas clear color == page ink). Bonus: bottom
+   controls sit above Safari's toolbar-reveal dead zone, so grade taps
+   register on the FIRST tap. */
 .h-viewport {
   height: 100vh;
-  height: 100dvh;
+  height: 100svh;
 }
 .-mb-viewport {
   margin-bottom: -100vh;
-  margin-bottom: -100dvh;
+  margin-bottom: -100svh;
 }
 
 /* ── WebKit fast path (.wk on <html>, set in main.jsx) ────────────────────
@@ -251,6 +258,11 @@ body {
 .img-slot .slot-tick.br { bottom: 6px; right: 6px; border-bottom: 1px solid; border-right: 1px solid; }
 
 /* ── grade stamp ──────────────────────────────────────────────────────── */
+/* The rough-edge SVG-filter mask that used to live here rendered nothing in
+   Safari (SVG filters via CSS mask data-URI are unsupported). The border +
+   rotation are what visually reads as a stamp — the mask was invisible
+   polish on Chromium only. Dropped for cross-browser parity (owner-approved
+   on the Lovable build). */
 .stamp {
   @apply font-mono uppercase;
   border: 2px solid currentColor;
@@ -258,10 +270,6 @@ body {
   padding: 0.5em 0.9em;
   letter-spacing: 0.18em;
   transform: rotate(-6deg);
-  -webkit-mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='r'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.35' numOctaves='3'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='discrete' tableValues='0 .4 .7 1 1 1 1 1 1 1'/%3E%3C/feComponentTransfer%3E%3CfeComposite operator='in' in2='SourceGraphic'/%3E%3C/filter%3E%3Crect width='200' height='80' filter='url(%23r)'/%3E%3C/svg%3E");
-  mask-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='r'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.35' numOctaves='3'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='discrete' tableValues='0 .4 .7 1 1 1 1 1 1 1'/%3E%3C/feComponentTransfer%3E%3CfeComposite operator='in' in2='SourceGraphic'/%3E%3C/filter%3E%3Crect width='200' height='80' filter='url(%23r)'/%3E%3C/svg%3E");
-  -webkit-mask-size: cover;
-  mask-size: cover;
 }
 
 /* ── custom cursor ────────────────────────────────────────────────────── */
@@ -350,13 +358,13 @@ body {
 /* ── grain inspector flashlight ───────────────────────────────────────── */
 .flashlight-lit {
   -webkit-mask-image: radial-gradient(
-    circle 190px at var(--mx, 50%) var(--my, 50%),
+    circle 360px at var(--mx, 50%) var(--my, 50%),
     #000 0 38%,
     rgba(0, 0, 0, 0.55) 62%,
     transparent 100%
   );
   mask-image: radial-gradient(
-    circle 190px at var(--mx, 50%) var(--my, 50%),
+    circle 360px at var(--mx, 50%) var(--my, 50%),
     #000 0 38%,
     rgba(0, 0, 0, 0.55) 62%,
     transparent 100%

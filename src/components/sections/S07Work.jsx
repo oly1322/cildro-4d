@@ -39,8 +39,16 @@ export default function S07Work() {
                 <span className="font-display text-2xl text-accent">{String(i + 1).padStart(2, '0')}</span>
                 <span className="mlabel opacity-40">APP/{a.img.split('.')[0].slice(0, 10)}</span>
               </header>
-              <div className="text-ink/45 group-hover:text-accent transition-colors">
-                <ImageSlot name={a.img} ratio="16/10" />
+              {/* real application photos (owner-supplied, ported from the
+                  Lovable build) — served from public/images/apps/ */}
+              <div className="w-full overflow-hidden bg-ink/5" style={{ aspectRatio: '16 / 10' }}>
+                <img
+                  src={`/images/apps/${a.img}`}
+                  alt={a.label}
+                  loading="lazy"
+                  decoding="async"
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                />
               </div>
               <h3 className="font-body font-semibold text-lg mt-5">{a.label}</h3>
             </article>
@@ -75,7 +83,11 @@ export default function S07Work() {
           <ImageSlot
             name={copy.factory.signImg}
             caption="the CILDRO wooden sign on the brick wall"
-            ratio="4/3"
+            ratio="auto"
+            src="/images/apps/cildro-sign.webp"
+            width={1400}
+            height={616}
+            alt="CILDRO wooden sign mounted on the brick wall at the Drobeta-Turnu Severin mill"
           />
           <span className="stamp text-accent text-xs absolute -bottom-4 right-6 bg-bone">
             Mill — Drobeta-Turnu Severin, RO

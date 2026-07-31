@@ -7,7 +7,7 @@ import copy from '../../content/copy.js'
 function Bar({ pct, label }) {
   return (
     <div className="mt-2.5">
-      <div className="mlabel opacity-60 mb-1">{label}</div>
+      <div className="mlabel text-bone/80 mb-1">{label}</div>
       <div className="h-1.5 bg-bone/15 relative overflow-hidden">
         <div className="stat-bar absolute inset-y-0 left-0 bg-accent origin-left" style={{ width: `${pct}%` }} />
       </div>
@@ -52,7 +52,6 @@ export default function S05Impact() {
             <h2 className="h-display text-3xl md:text-6xl text-bone max-w-[14ch]">
               The strongest <span className="outline-text">panel</span> in the room.
             </h2>
-            <p className="font-body text-sm md:text-base text-bone/65 mt-4 max-w-[44ch]">{copy.impact.sub}</p>
           </div>
           <span className="mlabel text-bone/40 hidden md:block pt-2 text-right">
             FIG. 05 — ball-impact test<br />

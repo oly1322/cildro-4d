@@ -37,7 +37,6 @@ export default function S02Surface() {
             <h2 className="h-display text-3xl md:text-6xl max-w-[15ch] text-bone">
               See exactly what arrives <span className="outline-text">on your truck.</span>
             </h2>
-            <p className="font-body text-sm md:text-base text-bone/65 mt-4 max-w-[42ch]">{copy.showroom.sub}</p>
           </div>
           <span className="mlabel text-bone/40 hidden md:block pt-2">FIG. 02 — face inspection</span>
         </div>
@@ -47,6 +46,8 @@ export default function S02Surface() {
           <img
             src={grade.photo}
             alt={`Beech plywood quality grade ${grade.label} — mill photo`}
+            loading="lazy"
+            decoding="async"
             className="absolute inset-x-5 bottom-40 md:left-auto md:right-8 md:w-[55%] aspect-video object-cover border border-bone/20"
           />
         )}

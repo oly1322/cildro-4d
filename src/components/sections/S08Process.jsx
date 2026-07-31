@@ -14,29 +14,39 @@ function Steps() {
     if (!fx) return
     const panels = stickyRef.current.querySelectorAll('.step-panel')
     const nums = stickyRef.current.querySelectorAll('.step-num')
-    gsap.set(panels, { opacity: 0, y: 60 })
-    gsap.set(panels[0], { opacity: 1, y: 0 })
-    gsap.set(nums, { opacity: 0 })
-    gsap.set(nums[0], { opacity: 1 })
+    const clamp01 = (v) => (v < 0 ? 0 : v > 1 ? 1 : v)
+    const shift = window.matchMedia('(max-width: 767px)').matches ? 32 : 60
+    const FADE = 0.18
+
+    // one window [i, i+1] per step: fade in, hold, fade out — the out-ramp
+    // completes before the next panel starts fading in, so no two steps are
+    // legible at the same time.
+    const apply = (progress) => {
+      const seg = progress * panels.length
+      panels.forEach((p, i) => {
+        const local = seg - i
+        const isLast = i === panels.length - 1
+        const fadeIn = i === 0 ? 1 : clamp01(local / FADE)
+        const fadeOut = isLast ? 1 : 1 - clamp01((local - (1 - FADE)) / FADE)
+        const o = local < 0 ? 0 : Math.min(fadeIn, fadeOut)
+        p.style.opacity = o
+        p.style.transform = `translateY(${(1 - fadeIn) * shift}px)`
+        if (nums[i]) nums[i].style.opacity = o
+      })
+    }
+
+    apply(0)
 
     const st = ScrollTrigger.create({
       trigger: wrapRef.current,
       start: 'top top',
       end: 'bottom bottom',
       scrub: true,
-      onUpdate: (self) => {
-        const seg = self.progress * copy.process.steps.length
-        panels.forEach((p, i) => {
-          const local = gsap.utils.clamp(0, 1, seg - i)
-          const leaving = gsap.utils.clamp(0, 1, seg - i - 0.85) * (i < panels.length - 1 ? 1 : 0)
-          p.style.opacity = local < 0.15 ? local / 0.15 : 1 - leaving
-          p.style.transform = `translateY(${(1 - Math.min(local / 0.15, 1)) * 60}px)`
-          nums[i].style.opacity = p.style.opacity
-        })
-      },
+      onUpdate: (self) => apply(self.progress),
     })
     return () => st.kill()
   }, [fx])
+
 
   if (!fx) {
     return (
@@ -44,7 +54,7 @@ function Steps() {
         {copy.process.steps.map((s) => (
           <div key={s.n} className="border border-bone/15 p-6">
             <div className="font-display text-5xl text-accent">{s.n}</div>
-            <h3 className="font-body font-semibold text-xl mt-4">{s.title}</h3>
+            <h3 className="font-body font-semibold text-xl mt-4 text-bone">{s.title}</h3>
             <p className="text-bone/60 text-sm mt-3 leading-relaxed">{s.desc}</p>
           </div>
         ))}
@@ -53,7 +63,7 @@ function Steps() {
   }
 
   return (
-    <div ref={wrapRef} className="h-[300vh]">
+    <div ref={wrapRef} className="h-[360vh]">
       <div ref={stickyRef} className="sticky top-0 h-screen flex items-center overflow-hidden">
         <div className="grid md:grid-cols-2 gap-8 w-full px-5 md:px-16 items-center">
           {/* stacked giant numbers */}
@@ -62,18 +72,18 @@ function Steps() {
               <span
                 key={s.n}
                 className="step-num absolute inset-0 font-display text-[20rem] leading-none text-transparent"
-                style={{ WebkitTextStroke: '2px rgba(244,239,230,0.35)' }}
+                style={{ WebkitTextStroke: '2px rgba(244,239,230,0.55)' }}
               >
                 {s.n}
               </span>
             ))}
           </div>
           {/* stacked panels */}
-          <div className="relative min-h-[18rem]">
+          <div className="relative min-h-[22rem] md:min-h-[18rem]">
             {copy.process.steps.map((s) => (
               <div key={s.n} className="step-panel absolute inset-0">
                 <span className="mlabel text-accent">step {s.n} / 03</span>
-                <h3 className="h-display text-4xl md:text-6xl mt-4 max-w-[14ch]">{s.title}</h3>
+                <h3 className="h-display text-4xl md:text-6xl mt-4 max-w-[14ch] text-bone">{s.title}</h3>
                 <p className="font-body text-bone/65 mt-6 max-w-[42ch] text-base md:text-lg leading-relaxed">
                   {s.desc}
                 </p>
@@ -184,7 +194,7 @@ function Faq() {
 
 export default function S08Process() {
   return (
-    <section id="process" data-section="process" className="bg-ink rule-t">
+    <section id="process" data-section="process" className="bg-ink text-bone rule-t">
       <div className="px-5 md:px-8 pt-24 md:pt-32">
         <div className="flex items-baseline justify-between mb-4">
           <p className="mlabel text-accent">08 / How it works</p>

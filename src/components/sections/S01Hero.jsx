@@ -96,12 +96,20 @@ export default function S01Hero({ started }) {
       <div className={`relative h-viewport overflow-hidden ${fx ? 'sticky top-0' : ''}`}>
         {/* static fallback */}
         {!use3d && (
-          <img
-            src="/images/plywood-cutout-1x.png"
-            srcSet="/images/plywood-cutout-1x.png 1x, /images/plywood-cutout-2x.png 2x"
-            alt="Stack of Cildro 100% beech plywood sheets with layered ply edges"
-            className="absolute right-0 bottom-[12%] w-[92%] max-w-[720px] object-contain opacity-90 md:left-auto md:right-6"
-          />
+          <picture>
+            <source
+              type="image/webp"
+              srcSet="/images/plywood-cutout-1x.webp 1x, /images/plywood-cutout-2x.webp 2x"
+            />
+            <img
+              src="/images/plywood-cutout-1x.png"
+              srcSet="/images/plywood-cutout-1x.png 1x, /images/plywood-cutout-2x.png 2x"
+              alt="Stack of Cildro 100% beech plywood sheets with layered ply edges"
+              width="1100"
+              height="1040"
+              className="absolute right-0 bottom-[12%] w-[92%] max-w-[720px] object-contain opacity-90 md:left-auto md:right-6"
+            />
+          </picture>
         )}
         {/* scrim: vertical on phones (copy top + CTAs bottom, panel visible
             through the clear middle), side gradient on desktop */}
@@ -122,7 +130,7 @@ export default function S01Hero({ started }) {
           </p>
           <h1
             ref={h1Ref}
-            className="h-display text-[10.5vw] md:text-[min(4.4rem,7vh)] lg:text-[min(5rem,7.2vh)] xl:text-[min(5.6rem,7.4vh)] max-w-[16ch]"
+            className="h-display text-white text-[10.5vw] md:text-[min(4.4rem,7vh)] lg:text-[min(5rem,7.2vh)] xl:text-[min(5.6rem,7.4vh)] max-w-[16ch]"
           >
             {copy.hero.headline}
           </h1>
