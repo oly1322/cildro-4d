@@ -57,8 +57,10 @@ Story beats (one 9-veneer panel throughout):
    toggles). Section has a non-pinned tail (product trio) — scene beats must
    finish by ~0.65 of the phase range (see comment in Experience.jsx).
 5. **impact** — panel becomes the beech specimen; birch/softwood slide in;
-   steel balls drop with real vertex-displacement craters (`displaceTop`,
-   `DAMAGE` table) + feathered photo decals; |sin| decaying rebounds.
+   steel balls drop with real craters (`bakeCrater` + `DAMAGE` table —
+   baked ONCE as GPU morph targets behind the curtain, scrubbed via
+   morphTargetInfluences; never go back to per-frame CPU displacement,
+   that was the phone jank) + feathered photo decals; decaying rebounds.
 
 Sections 06–09 are normal DOM (grain flashlight, applications/network,
 process/specs/FAQ, quote form → mailto). Static fallback for
