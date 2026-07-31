@@ -138,7 +138,7 @@ function Rig() {
   const built = useMemo(() => {
     if (!textures) return null
     const [ge, gi, gii, giii, giv, edgeMacro, filmMesh, birchF, softF, dmgBe, dmgBi, dmgSo] = textures
-    textures.forEach((t) => tuneColorTexture(t, light ? { aniso: 4 } : {}))
+    textures.forEach((t) => tuneColorTexture(t, light ? { aniso: 2 } : {}))
     const cross = tuneColorTexture(giii.clone(), { rotate: Math.PI / 2 })
     const gradeMaps = { e: ge, i: gi, ii: gii, iii: giii, iv: giv }
 
@@ -552,14 +552,18 @@ function Rig() {
 /* ── canvas shell ─────────────────────────────────────────────────────── */
 
 export default function ExperienceCanvas() {
-  // phones: cap dpr at 1.5 — on a 3× screen that is ~4× fewer pixels than
-  // native for a render nobody can tell apart at arm's length
+  // phones: dpr capped at 1.5 and MSAA off — fullscreen antialias resolve is
+  // the single most expensive setting on mid-range Mali/Adreno GPUs and is
+  // barely perceptible at phone pixel density. Budget Androids (Chrome
+  // exposes deviceMemory; Safari never does, so iPhones are unaffected)
+  // drop to 1× render resolution for a stable frame rate.
   const light = wantsLightAssets()
+  const lowTier = light && (navigator.deviceMemory || 8) <= 4
   return (
     <Canvas
-      dpr={light ? [1, 1.5] : [1, 1.8]}
+      dpr={lowTier ? 1 : light ? [1, 1.5] : [1, 1.8]}
       camera={{ fov: 30, position: [2.7, 1.6, 3.6] }}
-      gl={{ antialias: true, alpha: false, powerPreference: 'high-performance', stencil: false }}
+      gl={{ antialias: !light, alpha: false, powerPreference: 'high-performance', stencil: false }}
       onCreated={({ camera, gl }) => {
         // opaque canvas cleared to the exact page ink: identical look to the
         // old transparent canvas over the ink DOM, but the compositor no
