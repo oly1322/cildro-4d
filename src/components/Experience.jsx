@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef } from 'react'
-import { Canvas, useFrame } from '@react-three/fiber'
+import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 import { xp, localOf } from '../lib/xp.js'
 import { tuneColorTexture, useLoadedTextures, makeGlueSpreadMaps, LIGHTS } from '../lib/three-utils.js'
@@ -128,17 +128,30 @@ function makeFeatheredDecal(tex) {
 function Rig() {
   const light = useMemo(() => wantsLightAssets(), [])
   const textures = useLoadedTextures(rigTextureUrls(light))
+  const gl = useThree((s) => s.gl)
+  const scene = useThree((s) => s.scene)
+  const camera = useThree((s) => s.camera)
 
-  // tell the Preloader the scene is actually paintable — it holds the
-  // curtain until this fires (production networks are not localhost)
+  // warm the GPU while the curtain is still up, THEN signal ready:
+  // upload every rig texture (incl. the grade faces not yet on a mesh —
+  // kills the hitch on the first grade tap), compile all shader programs,
+  // and draw one frame. Without this the first scrolled frames stutter on
+  // lazy compilation/upload no matter how small the downloads are.
   useEffect(() => {
-    if (textures) window.dispatchEvent(new Event('xp:rig-ready'))
-  }, [textures])
+    if (!textures) return
+    textures.forEach((t) => gl.initTexture(t))
+    gl.compile(scene, camera)
+    gl.render(scene, camera)
+    window.dispatchEvent(new Event('xp:rig-ready'))
+  }, [textures, gl, scene, camera])
 
   const built = useMemo(() => {
     if (!textures) return null
     const [ge, gi, gii, giii, giv, edgeMacro, filmMesh, birchF, softF, dmgBe, dmgBi, dmgSo] = textures
-    textures.forEach((t) => tuneColorTexture(t, light ? { aniso: 2 } : {}))
+    // aniso 2 only where fillrate is truly scarce; iPhones keep 4 — the
+    // aniso cut read as blurry faces at oblique angles (owner feedback)
+    const lowTier = light && (navigator.deviceMemory || 8) <= 4
+    textures.forEach((t) => tuneColorTexture(t, light ? { aniso: lowTier ? 2 : 4 } : {}))
     const cross = tuneColorTexture(giii.clone(), { rotate: Math.PI / 2 })
     const gradeMaps = { e: ge, i: gi, ii: gii, iii: giii, iv: giv }
 
@@ -552,18 +565,21 @@ function Rig() {
 /* ── canvas shell ─────────────────────────────────────────────────────── */
 
 export default function ExperienceCanvas() {
-  // phones: dpr capped at 1.5 and MSAA off — fullscreen antialias resolve is
-  // the single most expensive setting on mid-range Mali/Adreno GPUs and is
-  // barely perceptible at phone pixel density. Budget Androids (Chrome
-  // exposes deviceMemory; Safari never does, so iPhones are unaffected)
-  // drop to 1× render resolution for a stable frame rate.
+  // phone GPU profile, learned the hard way:
+  // - Apple GPUs are TBDR — MSAA is close to free there, and turning it off
+  //   made iPhone edges visibly jagged (owner feedback). AA stays ON for
+  //   WebKit; it is OFF only on non-WebKit phones (Mali/Adreno, where the
+  //   fullscreen resolve genuinely costs a big slice of the frame).
+  // - Budget Androids (deviceMemory <= 4 — Chrome-only signal, Safari never
+  //   exposes it) render at 1× for a stable frame rate.
   const light = wantsLightAssets()
+  const wk = navigator.vendor === 'Apple Computer, Inc.'
   const lowTier = light && (navigator.deviceMemory || 8) <= 4
   return (
     <Canvas
       dpr={lowTier ? 1 : light ? [1, 1.5] : [1, 1.8]}
       camera={{ fov: 30, position: [2.7, 1.6, 3.6] }}
-      gl={{ antialias: !light, alpha: false, powerPreference: 'high-performance', stencil: false }}
+      gl={{ antialias: !light || wk, alpha: false, powerPreference: 'high-performance', stencil: false }}
       onCreated={({ camera, gl }) => {
         // opaque canvas cleared to the exact page ink: identical look to the
         // old transparent canvas over the ink DOM, but the compositor no
