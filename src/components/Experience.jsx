@@ -505,19 +505,27 @@ function Rig() {
         if (ch.material && ch.material.transparent) ch.material.opacity = show
       })
       const restY = 0.025 + 0.075
-      const drops = [0.24, 0.42, 0.6]
+      /* portrait (owner-tuned in Lovable, ported): wider gaps so the balls
+         land strictly ONE AFTER THE OTHER while scrolling — 0.28 / 0.54 /
+         0.80 — and a short drop from just above the specimen. Crucially, in
+         portrait a ball does not appear until its own drop begins: the
+         top-down camera sees everything, and the old "hover 0.12 early"
+         (invisible above the frame on desktop) read as balls floating
+         around mid-air. Desktop keeps the original approved choreography. */
+      const drops = portrait ? [0.18, 0.44, 0.7] : [0.24, 0.42, 0.6]
+      const startY = portrait ? 0.75 : 1.6
       ballRefs.current.forEach((ball, i) => {
         if (!ball) return
         ball.position.x = laneX(i)
         ball.position.z = laneZ(i)
         const t0 = drops[i]
         const tHit = t0 + 0.1
-        ball.visible = impact > t0 - 0.12 && impact > 0.2
+        ball.visible = portrait ? impact >= t0 : impact > t0 - 0.12 && impact > 0.2
         let y
-        if (impact < t0) y = 1.6
+        if (impact < t0) y = startY
         else if (impact < tHit) {
           const u = (impact - t0) / 0.1
-          y = lerp(1.6, restY, u * u)
+          y = lerp(startY, restY, u * u)
         } else {
           const u = Math.min(1, (impact - tHit) / Math.max(0.001, 1 - tHit))
           // beech shrugs, birch holds, softwood dents — rebounds start AT the
@@ -644,7 +652,8 @@ export default function ExperienceCanvas() {
         dpr={lowTier ? 1 : light ? [1, 1.5] : [1, 1.8]}
         camera={{ fov: 30, position: [2.7, 1.6, 3.6] }}
         gl={{ antialias: !light || wk, alpha: false, powerPreference: 'high-performance', stencil: false }}
-        onCreated={({ camera, gl }) => {
+        onCreated={({ camera, gl, scene }) => {
+        if (import.meta.env.DEV) window.__scene = scene
           // opaque canvas cleared to the exact page ink: identical look to the
           // old transparent canvas over the ink DOM, but the compositor no
           // longer alpha-blends a fullscreen 3D layer every frame (Safari!).
