@@ -46,13 +46,13 @@ export default function S03Material() {
       <div className={`relative h-viewport overflow-hidden ${fx ? 'sticky top-0' : ''} pointer-events-none`}>
         <div className="absolute top-20 md:top-24 inset-x-5 md:inset-x-8 flex items-start justify-between">
           <div>
-            <p className="mlabel text-accent mb-3">03 / {copy.material.eyebrow} — assembly protocol</p>
+            <p className="mlabel text-accent mb-3">03 / {copy.material.eyebrow} — {copy.ui.eyebrow03suffix}</p>
             <h2 className="h-display text-3xl md:text-6xl text-bone">
-              One species.<br />
-              <span className="outline-text">Every single ply.</span>
+              {copy.material.titleA}<br />
+              <span className="outline-text">{copy.material.titleB}</span>
             </h2>
           </div>
-          <span className="mlabel text-bone/40 hidden md:block pt-2">FIG. 03 — exploded view</span>
+          <span className="mlabel text-bone/40 hidden md:block pt-2">{copy.ui.fig03}</span>
         </div>
 
         {/* static fallback: CSS layer stack */}
@@ -109,7 +109,7 @@ export default function S03Material() {
           </div>
           <div className="mlabel text-bone/45 flex justify-between md:block md:text-right">
             <span className="block">{copy.material.veneerNote}</span>
-            <span className="block md:mt-1 text-bone/30">(scroll to explode)</span>
+            <span className="block md:mt-1 text-bone/30">{copy.ui.scrollToExplode}</span>
           </div>
         </div>
       </div>

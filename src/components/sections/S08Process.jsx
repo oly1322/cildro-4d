@@ -82,7 +82,7 @@ function Steps() {
           <div className="relative min-h-[22rem] md:min-h-[18rem]">
             {copy.process.steps.map((s) => (
               <div key={s.n} className="step-panel absolute inset-0">
-                <span className="mlabel text-accent">step {s.n} / 03</span>
+                <span className="mlabel text-accent">{copy.ui.step} {s.n} / 03</span>
                 <h3 className="h-display text-4xl md:text-6xl mt-4 max-w-[14ch] text-bone">{s.title}</h3>
                 <p className="font-body text-bone/65 mt-6 max-w-[42ch] text-base md:text-lg leading-relaxed">
                   {s.desc}
@@ -104,14 +104,14 @@ function SpecSheet() {
     <div className="section-light bg-bone text-ink rule-t px-5 md:px-8 py-20 md:py-28">
       <div className="max-w-4xl mx-auto border border-ink/25 bg-bone relative">
         <div className="absolute -top-5 right-6 stamp text-accent text-xs bg-bone">
-          Cildro — graded &amp; approved
+          {copy.ui.stampApproved}
         </div>
         <div className="px-6 md:px-10 py-8 border-b border-ink/15 flex flex-wrap items-baseline justify-between gap-3">
           <div>
-            <p className="mlabel text-accent mb-2">08.B / Mill datasheet — EN test series</p>
+            <p className="mlabel text-accent mb-2">{copy.ui.eyebrow08b}</p>
             <h3 className="h-display text-3xl md:text-5xl">{copy.specs.title}</h3>
           </div>
-          <span className="mlabel opacity-40">DOC. CP-EN/750</span>
+          <span className="mlabel opacity-40">{copy.ui.doc}</span>
         </div>
         <button
           onClick={() => setOpen(!open)}
@@ -157,7 +157,7 @@ function Faq() {
     <div className="section-light bg-bone text-ink px-5 md:px-8 pb-24 md:pb-32">
       <div className="max-w-4xl mx-auto">
         <h3 className="h-display text-3xl md:text-5xl mb-10" data-reveal>
-          Questions buyers <span className="outline-text">actually ask.</span>
+          {copy.faq.titleA} <span className="outline-text">{copy.faq.titleB}</span>
         </h3>
         <div className="border-t border-ink/20">
           {copy.faq.items.map((f, i) => {
@@ -197,11 +197,11 @@ export default function S08Process() {
     <section id="process" data-section="process" className="bg-ink text-bone rule-t">
       <div className="px-5 md:px-8 pt-24 md:pt-32">
         <div className="flex items-baseline justify-between mb-4">
-          <p className="mlabel text-accent">08 / How it works</p>
-          <span className="mlabel text-bone/40 hidden md:block">FIG. 08</span>
+          <p className="mlabel text-accent">{copy.ui.eyebrow08}</p>
+          <span className="mlabel text-bone/40 hidden md:block">{copy.ui.fig08}</span>
         </div>
         <h2 className="h-display text-[11vw] md:text-8xl" data-reveal>
-          Three steps. <span className="outline-text">Zero friction.</span>
+          {copy.process.titleA} <span className="outline-text">{copy.process.titleB}</span>
         </h2>
       </div>
       <Steps />

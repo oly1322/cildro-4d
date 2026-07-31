@@ -33,12 +33,12 @@ export default function S02Surface() {
           style={{ textShadow: '0 2px 24px rgba(23,18,13,0.85), 0 0 6px rgba(23,18,13,0.5)' }}
         >
           <div>
-            <p className="mlabel text-accent mb-3">02 / The surface — virtual showroom</p>
+            <p className="mlabel text-accent mb-3">{copy.ui.eyebrow02}</p>
             <h2 className="h-display text-3xl md:text-6xl max-w-[15ch] text-bone">
-              See exactly what arrives <span className="outline-text">on your truck.</span>
+              {copy.showroom.titleA} <span className="outline-text">{copy.showroom.titleB}</span>
             </h2>
           </div>
-          <span className="mlabel text-bone/40 hidden md:block pt-2">FIG. 02 — face inspection</span>
+          <span className="mlabel text-bone/40 hidden md:block pt-2">{copy.ui.fig02}</span>
         </div>
 
         {/* static fallback */}
@@ -60,7 +60,7 @@ export default function S02Surface() {
                 className="mlabel text-bone/60 mb-2 md:mb-3"
                 style={{ textShadow: '0 1px 12px rgba(23,18,13,0.9), 0 0 4px rgba(23,18,13,0.6)' }}
               >
-                Quality grade <span className="text-accent ml-2">{copy.showroom.hint}</span>
+                {copy.showroom.qualityGrade} <span className="text-accent ml-2">{copy.showroom.hint}</span>
               </p>
               <div className="flex gap-px bg-bone/20 border border-bone/20 w-full md:w-max">
                 {GRADES.map((g) => (
@@ -79,11 +79,11 @@ export default function S02Surface() {
               </div>
             </div>
             <div className="w-full md:w-auto md:max-w-xs bg-ink/85 md:bg-ink/70 md:backdrop-blur-sm border border-bone/15 px-4 py-2.5 md:py-3">
-              <p className="mlabel text-bone/50 mb-1">Grade {gradeId.toUpperCase()} — raw beech</p>
+              <p className="mlabel text-bone/50 mb-1">
+                {copy.showroom.gradeWord} {gradeId.toUpperCase()} — {copy.showroom.rawBeech}
+              </p>
               <p className="font-body text-xs text-bone/80 leading-relaxed min-h-[3em]">
-                {gradeId === 'i'
-                  ? copy.showroom.grades[0].desc
-                  : 'Real mill-floor face — request the full grade catalogue with your quote.'}
+                {gradeId === 'i' ? copy.showroom.grades[0].desc : copy.showroom.gradeFallbackDesc}
               </p>
             </div>
           </div>

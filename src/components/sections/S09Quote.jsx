@@ -9,12 +9,12 @@ export default function S09Quote() {
     e.preventDefault()
     const data = new FormData(e.target)
     const body = [
-      `Work email: ${data.get('email')}`,
-      `Product: ${data.get('product')}`,
-      `Volume: ${data.get('volume')}`,
+      `${copy.ui.mailBody.email}: ${data.get('email')}`,
+      `${copy.ui.mailBody.product}: ${data.get('product')}`,
+      `${copy.ui.mailBody.volume}: ${data.get('volume')}`,
     ].join('\n')
     window.location.href = `mailto:${copy.contact.email}?subject=${encodeURIComponent(
-      'Trade quote request — Cildro Plywood'
+      copy.ui.mailQuoteSubject
     )}&body=${encodeURIComponent(body)}`
     setSent(true)
   }
@@ -23,11 +23,11 @@ export default function S09Quote() {
     <section id="quote" data-section="quote" className="section-light bg-bone2 text-ink rule-t">
       <div className="px-5 md:px-8 py-24 md:py-32">
         <div className="flex items-baseline justify-between mb-4">
-          <p className="mlabel text-accent">09 / Get a price — purchase order</p>
-          <span className="mlabel opacity-40 hidden md:block">FIG. 09</span>
+          <p className="mlabel text-accent">{copy.ui.eyebrow09}</p>
+          <span className="mlabel opacity-40 hidden md:block">{copy.ui.fig09}</span>
         </div>
         <h2 className="h-display text-[10.5vw] md:text-8xl max-w-[13ch]" data-reveal>
-          Get a trade quote in <span className="outline-text">4 business hours.</span>
+          {copy.quote.titleA} <span className="outline-text">{copy.quote.titleB}</span>
         </h2>
 
         <div className="grid lg:grid-cols-[1fr_minmax(0,360px)] gap-10 mt-14 items-start">
@@ -38,8 +38,8 @@ export default function S09Quote() {
             aria-label="Trade quote request"
           >
             <div className="flex items-center justify-between px-6 md:px-10 py-5 border-b border-ink/15">
-              <span className="mlabel opacity-60">PURCHASE ORDER — REQUEST FOR QUOTE</span>
-              <span className="font-mono text-[11px] text-accent">RFQ / B750</span>
+              <span className="mlabel opacity-60">{copy.ui.po}</span>
+              <span className="font-mono text-[11px] text-accent">{copy.ui.rfq}</span>
             </div>
 
             <div className="px-6 md:px-10 py-8 grid gap-8">
@@ -50,7 +50,7 @@ export default function S09Quote() {
                   type="email"
                   name="email"
                   autoComplete="email"
-                  placeholder="name@company.com"
+                  placeholder={copy.ui.emailPlaceholder}
                   className="w-full bg-transparent border-b-2 border-ink/25 focus:border-accent font-body text-lg py-3 outline-none placeholder:text-ink/30"
                 />
               </label>
@@ -97,16 +97,14 @@ export default function S09Quote() {
 
               <div className="flex flex-wrap gap-3">
                 <button type="submit" className="btn btn-accent" data-cursor="view">
-                  Send request →
+                  {copy.ui.send}
                 </button>
                 <a href={wa} target="_blank" rel="noreferrer" className="btn btn-wa" data-cursor="link">
                   {copy.hero.ctas.whatsapp}
                 </a>
               </div>
               {sent && (
-                <p className="font-mono text-[11px] text-accent">
-                  Your email client should open with the pre-filled request — hit send and the clock starts.
-                </p>
+                <p className="font-mono text-[11px] text-accent">{copy.ui.sentNote}</p>
               )}
               <p className="font-mono text-[11px] opacity-50 max-w-[52ch]">{copy.quote.note}</p>
             </div>
@@ -129,7 +127,7 @@ export default function S09Quote() {
             </ul>
             <div className="px-6 pb-6 pt-2">
               <a
-                href={`mailto:${copy.contact.email}?subject=${encodeURIComponent('Free sample box request')}`}
+                href={`mailto:${copy.contact.email}?subject=${encodeURIComponent(copy.ui.mailSamplesSubject)}`}
                 className="btn btn-ghost w-full"
                 data-cursor="link"
               >
@@ -165,7 +163,7 @@ export default function S09Quote() {
         </div>
         <div className="border-t border-bone/10 px-5 md:px-8 py-4 flex flex-wrap justify-between gap-3">
           <span className="mlabel text-bone/40">{copy.contact.strip}</span>
-          <span className="mlabel text-bone/40">DOSSIER END — 09/09</span>
+          <span className="mlabel text-bone/40">{copy.ui.dossierEnd}</span>
         </div>
       </footer>
     </section>

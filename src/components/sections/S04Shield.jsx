@@ -43,13 +43,13 @@ export default function S04Shield() {
         <div className={`relative h-viewport overflow-hidden ${fx ? 'sticky top-0' : ''} pointer-events-none`}>
         <div className="absolute top-20 md:top-24 inset-x-5 md:inset-x-8 flex items-start justify-between">
           <div>
-            <p className="mlabel text-accent mb-3">04 / {copy.shield.eyebrow} — film application</p>
+            <p className="mlabel text-accent mb-3">04 / {copy.shield.eyebrow} — {copy.ui.eyebrow04suffix}</p>
             <h2 className="h-display text-3xl md:text-6xl text-bone max-w-[13ch]">
-              Then we <span className="outline-text">armor it.</span>
+              {copy.shield.titleA} <span className="outline-text">{copy.shield.titleB}</span>
             </h2>
             <p className="font-body text-sm md:text-base text-bone/65 mt-4 max-w-[40ch]">{copy.shield.desc}</p>
           </div>
-          <span className="mlabel text-bone/40 hidden md:block pt-2">FIG. 04 — anti-slip film</span>
+          <span className="mlabel text-bone/40 hidden md:block pt-2">{copy.ui.fig04}</span>
         </div>
 
         {/* static fallback: phenolic swatch */}
@@ -96,7 +96,7 @@ export default function S04Shield() {
       {/* one beech, built three ways — approved product trio */}
       <div className="relative z-10 bg-ink px-5 md:px-8 py-20 md:py-28 rule-t">
         <h3 className="h-display text-[9vw] md:text-6xl text-bone" data-reveal>
-          One beech. <span className="outline-text">Built three ways.</span>
+          {copy.products.titleA} <span className="outline-text">{copy.products.titleB}</span>
         </h3>
         <div className="grid md:grid-cols-3 gap-px bg-bone/10 border border-bone/10 mt-10">
           {copy.products.items.map((p, i) => (

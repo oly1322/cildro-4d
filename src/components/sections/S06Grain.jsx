@@ -63,12 +63,12 @@ export default function S06Grain() {
 
       <div className="absolute top-16 md:top-20 inset-x-5 md:inset-x-8 flex items-start justify-between pointer-events-none">
         <div>
-          <p className="mlabel text-accent mb-3">06 / Grain inspector — the vault</p>
+          <p className="mlabel text-accent mb-3">{copy.ui.eyebrow06}</p>
           <h2 className="h-display text-4xl md:text-7xl text-bone mix-blend-difference">
-            Read the <span className="outline-text">fiber.</span>
+            {copy.grain.titleA} <span className="outline-text">{copy.grain.titleB}</span>
           </h2>
         </div>
-        <span className="mlabel text-bone/50 hidden md:block pt-2">FIG. 06 — macro, real panel</span>
+        <span className="mlabel text-bone/50 hidden md:block pt-2">{copy.ui.fig06}</span>
       </div>
 
       <div className="absolute bottom-8 inset-x-5 md:inset-x-8 flex flex-wrap items-end justify-between gap-4 pointer-events-none">

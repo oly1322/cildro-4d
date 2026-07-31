@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { gsap } from '../lib/fx.js'
 import { useMotion } from '../lib/motion.jsx'
 import { rigTextureUrls, wantsLightAssets } from '../lib/textures.js'
+import copy from '../content/copy.js'
 
 /* static-fallback assets (no-WebGL / reduced-motion path) */
 const PRELOAD_STATIC = [
@@ -109,14 +110,14 @@ export default function Preloader({ onDone }) {
       className="fixed inset-0 z-[120] bg-ink text-bone flex flex-col items-center justify-center touch-none overscroll-contain"
       aria-hidden="true"
     >
-      <div className="mlabel text-bone/50 mb-6">CILDRO PLYWOOD — MILL FILE 2013—2026</div>
+      <div className="mlabel text-bone/50 mb-6">{copy.ui.preloaderTop}</div>
       <div className="relative flex items-center justify-center h-32">
         <span
           className={`stamp text-accent text-lg md:text-2xl transition-transform duration-150 ${
             stamped ? 'scale-100 opacity-100' : 'scale-[2.2] opacity-0'
           }`}
         >
-          Graded &amp; Approved
+          {copy.ui.stamped}
         </span>
       </div>
       <div className="font-display text-6xl md:text-8xl tabular-nums mt-6">{pct}%</div>

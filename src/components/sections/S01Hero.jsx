@@ -158,7 +158,7 @@ export default function S01Hero({ started }) {
             <a href="#quote" className="btn btn-accent" data-cursor="link">{copy.hero.ctas.primary}</a>
             <a href={wa} target="_blank" rel="noreferrer" className="btn btn-wa" data-cursor="link">{copy.hero.ctas.whatsapp}</a>
             <a
-              href={`mailto:${copy.contact.email}?subject=${encodeURIComponent('Free sample box request')}`}
+              href={`mailto:${copy.contact.email}?subject=${encodeURIComponent(copy.ui.mailSamplesSubject)}`}
               className="btn btn-ghost col-span-2 sm:col-auto"
               data-cursor="link"
               title={copy.hero.ctas.samplesNote}
@@ -196,8 +196,8 @@ export default function S01Hero({ started }) {
             never read as broken text-through-text */}
         <div className="absolute bottom-0 inset-x-0 z-10 bg-gradient-to-t from-ink/85 via-ink/40 to-transparent">
           <div className="flex justify-between px-5 md:px-8 pb-2">
-            <span className="mlabel text-bone/40">FIG. 01 — product: 100% beech multiply</span>
-            <span className="mlabel text-bone/40 animate-pulse">(scroll down)</span>
+            <span className="mlabel text-bone/40">{copy.ui.fig01}</span>
+            <span className="mlabel text-bone/40 animate-pulse">{copy.ui.scrollDown}</span>
           </div>
           <Ticker />
         </div>

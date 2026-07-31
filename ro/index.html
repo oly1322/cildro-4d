@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="ro">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Placaj de Fag — Fag European, Direct din Fabrică | Cildro</title>
+    <meta
+      name="description"
+      content="Placaj din fag european presat în fabrica noastră din UE. 750 kg/m³, ≥25 N/mm² Brinell, 4–60 mm, FSC/E1/EUDR. Camioane complete în ~2 săptămâni. Mostre gratuite."
+    />
+    <link rel="icon" type="image/webp" href="/images/cildro-logo.webp" />
+    <link rel="canonical" href="https://cildroplywood.ro/ro/" />
+    <link rel="alternate" hreflang="en" href="https://cildroplywood.ro/" />
+    <link rel="alternate" hreflang="ro" href="https://cildroplywood.ro/ro/" />
+    <link rel="alternate" hreflang="x-default" href="https://cildroplywood.ro/" />
+    <meta property="og:title" content="Placaj de Fag — Fag European, Direct din Fabrică | Cildro" />
+    <meta
+      property="og:description"
+      content="Placaj din fag european, din fabrica noastră din UE — 750 kg/m³, mai dens și mai dur decât mesteacănul. Direct din fabrică, camioane complete în ~2 săptămâni."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://cildroplywood.ro/ro/" />
+    <meta property="og:image" content="/images/plywood-cutout-1x.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="theme-color" content="#17120D" />
+    <!-- first rig texture: kick off in parallel with JS parse -->
+    <link rel="preload" as="image" href="/images/d/surface-e.webp" media="(min-width: 821px)" />
+    <link rel="preload" as="image" href="/images/m/surface-e.webp" media="(max-width: 820px)" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+    <!-- Google Ads (gtag) — fully deferred until window load so it never blocks LCP/TBT. -->
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'AW-10989710316');
+      (function () {
+        var loaded = false;
+        function loadGtag() {
+          if (loaded) return; loaded = true;
+          var s = document.createElement('script');
+          s.async = true;
+          s.src = 'https://www.googletagmanager.com/gtag/js?id=AW-10989710316';
+          document.head.appendChild(s);
+        }
+        if (document.readyState === 'complete') {
+          setTimeout(loadGtag, 1500);
+        } else {
+          window.addEventListener('load', function(){ setTimeout(loadGtag, 1500); }, { once: true });
+        }
+        ['pointerdown','keydown','scroll','touchstart'].forEach(function(ev){
+          window.addEventListener(ev, loadGtag, { once: true, passive: true });
+        });
+      })();
+    </script>
+  </body>
+</html>

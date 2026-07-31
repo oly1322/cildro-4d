@@ -48,14 +48,14 @@ export default function S05Impact() {
       <div className={`relative h-viewport overflow-hidden ${fx ? 'sticky top-0' : ''} pointer-events-none`}>
         <div className="absolute top-20 md:top-24 inset-x-5 md:inset-x-8 flex items-start justify-between">
           <div>
-            <p className="mlabel text-accent mb-3">05 / How beech stacks up — lab report</p>
+            <p className="mlabel text-accent mb-3">{copy.ui.eyebrow05}</p>
             <h2 className="h-display text-3xl md:text-6xl text-bone max-w-[14ch]">
-              The strongest <span className="outline-text">panel</span> in the room.
+              {copy.impact.titleA} <span className="outline-text">{copy.impact.titleB}</span> {copy.impact.titleC}
             </h2>
           </div>
           <span className="mlabel text-bone/40 hidden md:block pt-2 text-right">
-            FIG. 05 — ball-impact test<br />
-            <span className="opacity-60">(illustrative 3D renders)</span>
+            {copy.ui.fig05a}<br />
+            <span className="opacity-60">{copy.ui.fig05b}</span>
           </span>
         </div>
 
@@ -71,7 +71,7 @@ export default function S05Impact() {
         {/* stat columns over the three specimens — snap carousel on phones
             (cards in the same top→bottom order as the specimens on screen) */}
         <div className="absolute bottom-[calc(1.25rem+env(safe-area-inset-bottom))] md:bottom-8 inset-x-0 md:inset-x-8">
-          <p className="md:hidden mlabel text-bone/35 text-right px-5 mb-1.5">(swipe cards)</p>
+          <p className="md:hidden mlabel text-bone/35 text-right px-5 mb-1.5">{copy.ui.swipeCards}</p>
           <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory no-scrollbar px-5 pointer-events-auto md:pointer-events-none md:grid md:grid-cols-3 md:gap-4 md:overflow-visible md:px-0">
             {copy.impact.rows.map((r) => (
               <div
@@ -87,11 +87,11 @@ export default function S05Impact() {
                     <span className="font-mono text-[9px] ml-1 opacity-60">kg/m³</span>
                   </span>
                 </div>
-                <Bar pct={(r.density / 750) * 100} label={`density — ${r.densityLabel}`} />
-                <Bar pct={r.hardnessPct} label={`hardness — ${r.hardness}`} />
-                <Bar pct={r.bendingPct} label={`bending — ${r.bending}`} />
+                <Bar pct={(r.density / 750) * 100} label={`${copy.ui.density} — ${r.densityLabel}`} />
+                <Bar pct={r.hardnessPct} label={`${copy.ui.hardness} — ${r.hardness}`} />
+                <Bar pct={r.bendingPct} label={`${copy.ui.bending} — ${r.bending}`} />
                 <p className={`mlabel mt-2.5 md:mt-3 ${r.id === 'beech' ? 'text-accent' : 'text-bone/50'}`}>
-                  VERDICT: {r.verdict}
+                  {copy.ui.verdict} {r.verdict}
                 </p>
               </div>
             ))}

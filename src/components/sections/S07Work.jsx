@@ -24,11 +24,11 @@ export default function S07Work() {
     <section id="work" data-section="work" className="section-light bg-bone text-ink rule-t py-24 md:py-36">
       <div className="px-5 md:px-8">
         <div className="flex items-baseline justify-between mb-4">
-          <p className="mlabel text-accent">07 / Applications + the network</p>
-          <span className="mlabel opacity-40 hidden md:block">FIG. 07</span>
+          <p className="mlabel text-accent">{copy.ui.eyebrow07}</p>
+          <span className="mlabel opacity-40 hidden md:block">{copy.ui.fig07}</span>
         </div>
         <h2 className="h-display text-[10.5vw] md:text-8xl max-w-[14ch]" data-reveal>
-          Where Cildro beech <span className="outline-text">goes to work</span>
+          {copy.applications.titleA} <span className="outline-text">{copy.applications.titleB}</span>
         </h2>
 
         {/* applications grid */}
@@ -59,7 +59,7 @@ export default function S07Work() {
 
       {/* network marquee */}
       <div className="mt-24">
-        <p className="mlabel text-accent px-5 md:px-8 mb-6">Our network — {copy.network.title}</p>
+        <p className="mlabel text-accent px-5 md:px-8 mb-6">{copy.ui.ourNetwork} — {copy.network.title}</p>
         <ClientMarquee />
       </div>
 
@@ -90,7 +90,7 @@ export default function S07Work() {
             alt="CILDRO wooden sign mounted on the brick wall at the Drobeta-Turnu Severin mill"
           />
           <span className="stamp text-accent text-xs absolute -bottom-4 right-6 bg-bone">
-            Mill — Drobeta-Turnu Severin, RO
+            {copy.ui.millStamp}
           </span>
         </div>
       </div>

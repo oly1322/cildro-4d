@@ -60,11 +60,20 @@ export default function HUD({ onOpenDirectory }) {
         <a href="#hero" className="flex items-center gap-3" data-cursor="link" aria-label="Cildro Plywood — top">
           <span className="regmark opacity-60" />
           <span className="font-display text-lg tracking-wide uppercase">Cildro</span>
-          <span className="mlabel opacity-60 hidden md:inline">Plywood — est. 2013</span>
+          <span className="mlabel opacity-60 hidden md:inline">{copy.ui.headerTag}</span>
         </a>
-        <div className="flex items-center gap-6">
+        <div className="flex items-center gap-4 md:gap-6">
           <a href="#quote" className="mlabel opacity-80 hover:opacity-100 hidden md:inline" data-cursor="link">
-            Get a price ↗
+            {copy.ui.getPrice}
+          </a>
+          {/* language switch: EN page links to /ro/, RO page links back to / */}
+          <a
+            href={copy.ui.langLink.href}
+            className="mlabel opacity-80 hover:opacity-100 border border-current/40 px-1.5 py-0.5"
+            data-cursor="link"
+            aria-label={copy.ui.langLink.label === 'RO' ? 'Versiunea în română' : 'English version'}
+          >
+            {copy.ui.langLink.label}
           </a>
           <button onClick={onOpenDirectory} className="mlabel flex items-center gap-2" data-cursor="view" aria-haspopup="dialog">
             <span className="w-4 h-[9px] flex flex-col justify-between" aria-hidden="true">
@@ -72,7 +81,7 @@ export default function HUD({ onOpenDirectory }) {
               <span className="block h-px bg-current" />
               <span className="block h-px bg-current" />
             </span>
-            Directory
+            {copy.ui.directory}
           </button>
         </div>
       </header>

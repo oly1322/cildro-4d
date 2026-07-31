@@ -42,9 +42,9 @@ export default function DirectoryOverlay({ open, onClose, scrollTo }) {
       className="fixed inset-0 z-[100] bg-ink text-bone -translate-y-[102%] flex flex-col"
     >
       <div className="flex items-center justify-between px-5 md:px-8 h-16 border-b border-bone/10">
-        <span className="mlabel text-bone/60">Directory — dossier index</span>
+        <span className="mlabel text-bone/60">{copy.ui.dirTitle}</span>
         <button onClick={onClose} className="mlabel hover:text-accent" data-cursor="view">
-          Close [×]
+          {copy.ui.close}
         </button>
       </div>
       <nav className="flex-1 overflow-y-auto dir-scroll px-5 md:px-16 py-10">
