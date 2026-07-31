@@ -91,7 +91,10 @@ desktop. All branching lives in Experience.jsx's useFrame:
   Pose rotation reads go through `rotOf(pose)` — keep new uses on it.
 - **Impact trio runs along Z in portrait** (`LANE_M`, specimens stacked
   down the tall screen, camera near-top-down `[0,5,3]` look `[0,0,0.32]`)
-  vs X on desktop (`LANE`). Specimen/ball/dent lane coords are set per-frame
+  vs X on desktop (`LANE`). Balls drop STRICTLY one-by-one in portrait
+  (owner priority): drops 0.18/0.44/0.70, short fall from 0.75, and a
+  ball is INVISIBLE until its own drop starts — the top-down camera sees
+  any "waiting" hover (fine on desktop where it sits above the frame). Specimen/ball/dent lane coords are set per-frame
   via `laneX/laneZ(i)`; the panel parks at `-lane` on the active axis and
   z is reset in the non-impact pose branches (don't remove those resets).
 - Parallax: touchmove feeds the same `mouse` ref; deviceorientation only
