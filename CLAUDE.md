@@ -157,6 +157,27 @@ shadow, backdrop-blur off, grain static. The canvas is opaque
 — do NOT switch to `<color attach="background">`, it gets ACES
 tone-mapped and seams against the DOM ink.
 
+## GPU budget rules (do not regress)
+
+- **Never `texture.clone()` per face/instance.** Each clone is a separate
+  GPU upload of the same image. `edgeMat()` used to be called 4× per
+  veneer and `specimenEdge()` 8×, giving 44 redundant copies (~100 MB
+  VRAM on a phone) plus a long warm-up. One clone per veneer, one shared
+  specimen-edge texture. Budget: ~21 GPU textures
+  (`__gl.info.memory.textures` in dev).
+- **Transparent meshes at opacity 0 still cost full fill rate** — glue and
+  film meshes toggle `.visible` as they fade in/out.
+- **`xp.live`** (IntersectionObserver on the canvas host) empties the
+  scene through sections 06–09: measured 0 draw calls offscreen, restores
+  to ~54. Do NOT swap this for R3F `frameloop="never"` — resume could not
+  be verified headlessly and a frozen canvas is the failure mode.
+- **`gl.compile` only walks VISIBLE objects** — the warm-up forces every
+  hidden object visible while compiling, else the impact trio compiles
+  its shaders on first entry and hitches.
+- Perf work is measured, not assumed: `__gl.info.render.calls` /
+  `.triangles` / `.memory.textures` in dev. A clean-host test (Vercel)
+  proved the host was never the bottleneck — the scene was.
+
 ## Dev/verification gotchas (hard-won)
 
 - Textures load via `useLoadedTextures` (plain TextureLoader + state) — drei
