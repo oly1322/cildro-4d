@@ -1,10 +1,15 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import copy from '../content/copy.js'
 
 /** Sticky corner HUD: current dossier section + scroll progress rule. */
 export default function HUD({ onOpenDirectory }) {
   const [current, setCurrent] = useState(copy.directory[0])
-  const [progress, setProgress] = useState(0)
+  // progress is written straight to the DOM — a setState here re-rendered
+  // the HUD on every scrolled frame, which is React work the compositor
+  // has to wait on while the 3D scene is also drawing
+  const barRef = useRef(null)
+  const mBarRef = useRef(null)
+  const pctRef = useRef(null)
 
   useEffect(() => {
     const sections = [...document.querySelectorAll('[data-section]')]
@@ -29,7 +34,14 @@ export default function HUD({ onOpenDirectory }) {
       raf = requestAnimationFrame(() => {
         raf = 0
         const h = document.documentElement.scrollHeight - window.innerHeight
-        setProgress(h > 0 ? window.scrollY / h : 0)
+        const p = h > 0 ? window.scrollY / h : 0
+        const pc = `${p * 100}%`
+        if (barRef.current) barRef.current.style.height = pc
+        if (mBarRef.current) mBarRef.current.style.width = pc
+        if (pctRef.current)
+          pctRef.current.textContent = `${Math.round(p * 100)
+            .toString()
+            .padStart(3, '0')} / 100`
       })
     }
     window.addEventListener('scroll', onScroll, { passive: true })
@@ -77,16 +89,16 @@ export default function HUD({ onOpenDirectory }) {
 
       {/* mobile: hairline progress under the header (side rules are hidden) */}
       <div className="fixed top-0 inset-x-0 h-[2px] z-[85] md:hidden pointer-events-none" aria-hidden="true">
-        <div className="h-full bg-accent" style={{ width: `${progress * 100}%` }} />
+        <div ref={mBarRef} className="h-full bg-accent" style={{ width: 0 }} />
       </div>
 
       {/* right: progress rule */}
       <div className="fixed top-0 right-0 bottom-0 w-8 z-[80] hidden md:flex flex-col items-center justify-center pointer-events-none mix-blend-difference text-white" aria-hidden="true">
         <div className="relative h-40 w-px bg-white/25">
-          <div className="absolute top-0 left-0 w-px bg-white" style={{ height: `${progress * 100}%` }} />
+          <div ref={barRef} className="absolute top-0 left-0 w-px bg-white" style={{ height: 0 }} />
         </div>
-        <span className="mlabel opacity-60 mt-4 [writing-mode:vertical-rl]">
-          {Math.round(progress * 100).toString().padStart(3, '0')} / 100
+        <span ref={pctRef} className="mlabel opacity-60 mt-4 [writing-mode:vertical-rl]">
+          000 / 100
         </span>
       </div>
     </>

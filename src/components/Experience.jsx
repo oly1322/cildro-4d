@@ -167,6 +167,9 @@ function Rig() {
     const SMOOTH = [0.058, 0.175, 0.285, 0.401, 0.521, 0.641, 0.761]
     const ROUGH = [0.12, 0.227, 0.343, 0.461, 0.581, 0.7, 0.82]
     const SLICE = 0.048
+    // ONE clone per veneer (not per face) — every THREE.Texture.clone() is a
+    // separate GPU upload of the same image; cloning per face meant 36 copies
+    // of the edge macro (~100 MB of VRAM on a phone) and a long warm-up.
     const edgeMat = (i) => {
       const t = edgeMacro.clone()
       t.wrapS = THREE.RepeatWrapping
@@ -178,15 +181,15 @@ function Rig() {
       // slight tint keeps pale bands from blowing out under the key light
       return new THREE.MeshStandardMaterial({ map: t, color: '#e2d5bf', roughness: 1 })
     }
-    // multi-band edge for the comparison specimens (whole macro compressed)
-    const specimenEdge = (tint) => {
-      const t = edgeMacro.clone()
-      t.wrapS = THREE.RepeatWrapping
-      t.wrapT = THREE.ClampToEdgeWrapping
-      t.repeat.set(1.1, 0.55)
-      t.offset.set(0, 0.22)
-      return new THREE.MeshStandardMaterial({ map: t, color: tint, roughness: 1 })
-    }
+    // multi-band edge for the comparison specimens (whole macro compressed) —
+    // all 8 specimen edges share ONE texture; only the tint differs
+    const specimenEdgeTex = edgeMacro.clone()
+    specimenEdgeTex.wrapS = THREE.RepeatWrapping
+    specimenEdgeTex.wrapT = THREE.ClampToEdgeWrapping
+    specimenEdgeTex.repeat.set(1.1, 0.55)
+    specimenEdgeTex.offset.set(0, 0.22)
+    const specimenEdge = (tint) =>
+      new THREE.MeshStandardMaterial({ map: specimenEdgeTex, color: tint, roughness: 1 })
     const faceMat = (map, tint = '#ffffff') =>
       new THREE.MeshStandardMaterial({ map, color: tint, roughness: 0.62 })
 
@@ -196,21 +199,19 @@ function Rig() {
       const top = i === PLIES - 1
       const bottom = i === 0
       const map = top || bottom ? ge : long ? giii : cross
-      return [
-        edgeMat(i),
-        edgeMat(i),
-        faceMat(map, long ? '#ffffff' : '#f3e6d0'),
-        faceMat(map, long ? '#ffffff' : '#f3e6d0'),
-        edgeMat(i),
-        edgeMat(i),
-      ]
+      const em = edgeMat(i) // one texture per veneer, reused on all 4 edges
+      const fm = faceMat(map, long ? '#ffffff' : '#f3e6d0')
+      return [em, em, fm, fm, em, em]
     })
 
     // wet roller-spread glue film (see makeGlueSpreadMaps) — tinted live
     const glueMaps = makeGlueSpreadMaps()
     const glueMat = new THREE.MeshStandardMaterial({
       map: glueMaps.map,
-      bumpMap: glueMaps.map,
+      // bump uses screen-space derivatives — expensive per pixel on mobile
+      // GPUs and invisible at phone scale; the spread still reads via the
+      // color + roughness maps
+      bumpMap: light ? null : glueMaps.map,
       bumpScale: 0.45,
       roughnessMap: glueMaps.map,
       color: GLUE_COLORS[xp.glue],
@@ -257,7 +258,7 @@ function Rig() {
     ]
 
     return { gradeMaps, veneers, glueMat, filmMat, damageDecals, steel, birchMats, softMats }
-  }, [textures])
+  }, [textures, light])
 
   const panelRef = useRef()
   const specimenRefs = useRef([])
@@ -283,8 +284,19 @@ function Rig() {
     if (specimenRefs.current[2]) bakeCrater(specimenRefs.current[2], DAMAGE[2])
     textures.forEach((t) => gl.initTexture(t))
     built.damageDecals.forEach((t) => gl.initTexture(t))
+    // gl.compile only walks VISIBLE objects — the impact trio starts hidden,
+    // so its programs (and the per-veneer edge textures) would compile/upload
+    // on first entry and hitch. Force everything visible for the warm-up.
+    const hidden = []
+    scene.traverse((o) => {
+      if (o.visible === false) {
+        hidden.push(o)
+        o.visible = true
+      }
+    })
     gl.compile(scene, camera)
     gl.render(scene, camera)
+    hidden.forEach((o) => (o.visible = false))
     window.dispatchEvent(new Event('xp:rig-ready'))
   }, [built, textures, gl, scene, camera])
 
@@ -321,6 +333,15 @@ function Rig() {
 
   useFrame((state, dt) => {
     if (!built || !panelRef.current) return
+
+    // canvas scrolled out (sections 06–09): draw an empty scene — no
+    // shading, no geometry, and none of the per-frame math below
+    if (!xp.live) {
+      panelRef.current.visible = false
+      if (trioRef.current) trioRef.current.visible = false
+      return
+    }
+    panelRef.current.visible = true
     const hero = localOf('hero')
     const surface = localOf('surface')
     const material = localOf('material')
@@ -368,6 +389,8 @@ function Rig() {
       const step = VT + gap * explode
       g.position.y = (i - (PLIES - 1) / 2) * step + VT / 2 + 0.001
       g.material.opacity = explode * (xp.glue === 'melamine' ? 0.85 : 0.97)
+      // a fully transparent mesh still costs full fill rate — skip it
+      g.visible = explode > 0.01
       g.scale.setScalar(0.995)
     })
 
@@ -379,6 +402,7 @@ function Rig() {
       const topY = ((PLIES - 1) / 2) * VT + VT / 2
       filmRef.current.position.y = topY + 0.006 + (1 - fl) * 0.85
       built.filmMat.opacity = Math.min(1, fl * fl * 1.6)
+      filmRef.current.visible = fl > 0.01
       filmRef.current.scale.y = xp.filmWeight === '240' ? 1.8 : 1
     }
 
@@ -594,25 +618,50 @@ export default function ExperienceCanvas() {
   const light = wantsLightAssets()
   const wk = navigator.vendor === 'Apple Computer, Inc.'
   const lowTier = light && (navigator.deviceMemory || 8) <= 4
+
+  // sections 06–09 sit below the experience wrapper, so the canvas is fully
+  // offscreen there — the rig then draws nothing (xp.live, read in useFrame)
+  // instead of shading a fullscreen scene nobody sees. NOTE: deliberately
+  // not R3F's frameloop="never" — that risks a frozen canvas on resume and
+  // could not be verified headlessly; emptying the scene is reversible.
+  const hostRef = useRef(null)
+  useEffect(() => {
+    const el = hostRef.current
+    if (!el || !('IntersectionObserver' in window)) return
+    const io = new IntersectionObserver(([e]) => (xp.live = e.isIntersecting), {
+      rootMargin: '15% 0px',
+    })
+    io.observe(el)
+    return () => {
+      io.disconnect()
+      xp.live = true
+    }
+  }, [])
+
   return (
-    <Canvas
-      dpr={lowTier ? 1 : light ? [1, 1.5] : [1, 1.8]}
-      camera={{ fov: 30, position: [2.7, 1.6, 3.6] }}
-      gl={{ antialias: !light || wk, alpha: false, powerPreference: 'high-performance', stencil: false }}
-      onCreated={({ camera, gl }) => {
-        // opaque canvas cleared to the exact page ink: identical look to the
-        // old transparent canvas over the ink DOM, but the compositor no
-        // longer alpha-blends a fullscreen 3D layer every frame (Safari!).
-        // setClearColor bypasses tone mapping — <color attach="background">
-        // would get ACES-shifted and seam against the DOM background.
-        gl.setClearColor('#17120D', 1)
-        if (import.meta.env.DEV) window.__cam = camera
-      }}
-    >
-      <ambientLight intensity={LIGHTS.ambient} />
-      <directionalLight {...LIGHTS.key} />
-      <directionalLight {...LIGHTS.rim} />
-      <Rig />
-    </Canvas>
+    <div ref={hostRef} className="h-full w-full">
+      <Canvas
+        dpr={lowTier ? 1 : light ? [1, 1.5] : [1, 1.8]}
+        camera={{ fov: 30, position: [2.7, 1.6, 3.6] }}
+        gl={{ antialias: !light || wk, alpha: false, powerPreference: 'high-performance', stencil: false }}
+        onCreated={({ camera, gl }) => {
+          // opaque canvas cleared to the exact page ink: identical look to the
+          // old transparent canvas over the ink DOM, but the compositor no
+          // longer alpha-blends a fullscreen 3D layer every frame (Safari!).
+          // setClearColor bypasses tone mapping — <color attach="background">
+          // would get ACES-shifted and seam against the DOM background.
+          gl.setClearColor('#17120D', 1)
+          if (import.meta.env.DEV) {
+            window.__cam = camera
+            window.__gl = gl
+          }
+        }}
+      >
+        <ambientLight intensity={LIGHTS.ambient} />
+        <directionalLight {...LIGHTS.key} />
+        <directionalLight {...LIGHTS.rim} />
+        <Rig />
+      </Canvas>
+    </div>
   )
 }

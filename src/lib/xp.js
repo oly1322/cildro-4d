@@ -14,6 +14,8 @@ export const xp = window.__xp || {
     shield: [0.6, 0.8],
     impact: [0.8, 1],
   },
+  /** canvas is within (or near) the viewport — false through sections 06–09 */
+  live: true,
   /** user selections */
   grade: 'e',
   glue: 'phenolic',

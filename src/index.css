@@ -55,10 +55,14 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .grain::after { animation: none; }
 }
-/* touch devices: keep the paper grain but stop re-compositing it 4×/s */
+/* touch devices: keep the paper grain but stop re-compositing it 4×/s.
+   The -50% inset exists only to give the shift animation room — without
+   the animation, shrink it to the viewport so the compositor blends a
+   1× fullscreen layer over the canvas instead of a 4×-area one. */
 @media (hover: none) {
-  .grain::after { animation: none; }
+  .grain::after { animation: none; inset: 0; }
 }
+.wk .grain::after { inset: 0; }
 
 /* ── dynamic-viewport helpers (iOS URL-bar safe) ──────────────────────── */
 .h-viewport {
