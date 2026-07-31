@@ -7,10 +7,19 @@ plywood mill). Owner: Andrei Olaru (andrei.olaru@cildro.ro, WhatsApp
 ## Hard rules
 
 - **All copy, numbers, claims and product names are verbatim from
-  https://b2b.cildroplywood.ro** and live only in `src/content/copy.js`
-  (i18n-ready; en only so far). Never invent or edit a number/claim.
+  https://b2b.cildroplywood.ro + owner-supplied edits** and live only in
+  `src/content/copy.js`. Never invent or edit a number/claim.
   Exceptions marked in copy.js comments: glue/film options were supplied
   directly by the owner in chat.
+- **Bilingual (en + ro, Aug 2026):** copy.js holds both locales in one
+  shape, selected from `<html lang>`. `/ro/` is a second Vite entry
+  (`ro/index.html`, lang="ro", Romanian SEO head + hreflang pair with
+  the EN page). NO visible string may be hardcoded in a component — the
+  chrome/micro-labels live under `copy.ui`; add new strings to BOTH
+  locales. EN↔RO switch link in the HUD header.
+- **Product name: "Fagotex"** (owner renamed the former "Cildro Shield",
+  Aug 2026) — eyebrow, product card, quote option, directory, both
+  locales. Asset filenames (cildro-shield.webp) intentionally unchanged.
 - Photoreal only — no fake-looking CG wood. Owner supplies texture masters
   (see `public/images/README.md` for the full provenance map).
 - Palette: espresso `#17120D`, bone `#F4EFE6`, safety-orange `#FF5D1D`,
