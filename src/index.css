@@ -375,6 +375,12 @@ body {
 input, select {
   border-radius: 0;
 }
+
+/* kill iOS Safari's 350ms double-tap-to-zoom heuristic on controls —
+   rapid grade/glue/film taps were triggering a viewport zoom-bounce */
+a, button, summary, input, select {
+  touch-action: manipulation;
+}
 input:focus-visible, select:focus-visible, button:focus-visible, a:focus-visible, summary:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;

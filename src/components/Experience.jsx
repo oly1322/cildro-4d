@@ -27,24 +27,27 @@ const DAMAGE = [
 ]
 
 /**
- * Real dent: displace the top-face vertices of a segmented box in a radial
- * crater profile and recompute normals so the lighting shows the deformation.
- * `scaleXZ`/`scaleY` map world-space crater size into the mesh's local space
- * (the beech panel is scaled down when it becomes a specimen).
+ * Real dent, baked ONCE as a GPU morph target: the fully-formed crater
+ * (radial profile + raised rim, with precomputed normals) becomes morph
+ * slot 0 and the scroll drives `morphTargetInfluences[0]`. The old
+ * approach (CPU vertex displacement + computeVertexNormals every frame
+ * for 3 meshes) was the back-and-forth jank in the impact section on
+ * phones. `scaleXZ`/`scaleY` map world-space crater size into local space
+ * — craters only ever form after the beech panel reaches its final
+ * specimen scale, so baking at that scale is exact.
  */
-function displaceTop(mesh, amt, dmg, scaleXZ = 1, scaleY = 1) {
+function bakeCrater(mesh, dmg, scaleXZ = 1, scaleY = 1) {
   const g = mesh.geometry
-  if (!g.userData.base) g.userData.base = Float32Array.from(g.attributes.position.array)
-  if (Math.abs((g.userData.lastAmt || 0) - amt) < 0.004) return
-  g.userData.lastAmt = amt
-  const pos = g.attributes.position
-  const base = g.userData.base
+  if (g.userData.craterBaked) return
+  g.userData.craterBaked = true
+  const base = g.attributes.position.array
+  const displaced = Float32Array.from(base)
   const r = dmg.r / scaleXZ
-  const depth = (dmg.depth / scaleY) * amt
-  const rim = (dmg.rim / scaleY) * amt
+  const depth = dmg.depth / scaleY
+  const rim = dmg.rim / scaleY
   let topY = -Infinity
   for (let i = 1; i < base.length; i += 3) if (base[i] > topY) topY = base[i]
-  for (let vi = 0; vi < pos.count; vi++) {
+  for (let vi = 0; vi < base.length / 3; vi++) {
     const bx = base[vi * 3]
     const by = base[vi * 3 + 1]
     const bz = base[vi * 3 + 2]
@@ -52,10 +55,26 @@ function displaceTop(mesh, amt, dmg, scaleXZ = 1, scaleY = 1) {
     const d = Math.hypot(bx, bz)
     let disp = -depth * Math.exp(-(d * d) / (r * r))
     if (rim) disp += rim * Math.exp(-Math.pow((d - r * 1.35) / (r * 0.4), 2))
-    pos.setY(vi, by + disp)
+    displaced[vi * 3 + 1] = by + disp
   }
-  pos.needsUpdate = true
-  g.computeVertexNormals()
+  // normals for the displaced shape via a throwaway clone
+  const tmp = g.clone()
+  tmp.attributes.position.array.set(displaced)
+  tmp.computeVertexNormals()
+  const baseNor = g.attributes.normal.array
+  const dispNor = tmp.attributes.normal.array
+  const dPos = new Float32Array(base.length)
+  const dNor = new Float32Array(base.length)
+  for (let i = 0; i < base.length; i++) {
+    dPos[i] = displaced[i] - base[i]
+    dNor[i] = dispNor[i] - baseNor[i]
+  }
+  tmp.dispose()
+  g.morphTargetsRelative = true
+  g.morphAttributes.position = [new THREE.BufferAttribute(dPos, 3)]
+  g.morphAttributes.normal = [new THREE.BufferAttribute(dNor, 3)]
+  mesh.updateMorphTargets()
+  mesh.morphTargetInfluences[0] = 0
 }
 
 /* opening pose: the panel stands upright in portrait, face to the camera —
@@ -131,19 +150,6 @@ function Rig() {
   const gl = useThree((s) => s.gl)
   const scene = useThree((s) => s.scene)
   const camera = useThree((s) => s.camera)
-
-  // warm the GPU while the curtain is still up, THEN signal ready:
-  // upload every rig texture (incl. the grade faces not yet on a mesh —
-  // kills the hitch on the first grade tap), compile all shader programs,
-  // and draw one frame. Without this the first scrolled frames stutter on
-  // lazy compilation/upload no matter how small the downloads are.
-  useEffect(() => {
-    if (!textures) return
-    textures.forEach((t) => gl.initTexture(t))
-    gl.compile(scene, camera)
-    gl.render(scene, camera)
-    window.dispatchEvent(new Event('xp:rig-ready'))
-  }, [textures, gl, scene, camera])
 
   const built = useMemo(() => {
     if (!textures) return null
@@ -263,6 +269,24 @@ function Rig() {
   const dentRefs = useRef([])
   const gradeRef = useRef('e')
   const mouse = useRef({ x: 0, y: 0 })
+
+  // behind-the-curtain GPU warm-up, THEN signal ready. Order matters:
+  // craters must be baked (morph targets change the shader program) BEFORE
+  // gl.compile, or the impact section pays a recompile hitch later. Also
+  // uploads every rig texture (incl. grade faces not yet on a mesh — kills
+  // the first grade-tap hitch) and the damage decals, then draws one frame.
+  useEffect(() => {
+    if (!built) return
+    const topVeneer = veneerRefs.current[PLIES - 1]
+    if (topVeneer) bakeCrater(topVeneer, DAMAGE[0], 0.44, 0.05 / (PLIES * VT))
+    if (specimenRefs.current[1]) bakeCrater(specimenRefs.current[1], DAMAGE[1])
+    if (specimenRefs.current[2]) bakeCrater(specimenRefs.current[2], DAMAGE[2])
+    textures.forEach((t) => gl.initTexture(t))
+    built.damageDecals.forEach((t) => gl.initTexture(t))
+    gl.compile(scene, camera)
+    gl.render(scene, camera)
+    window.dispatchEvent(new Event('xp:rig-ready'))
+  }, [built, textures, gl, scene, camera])
 
   useEffect(() => {
     const set = (cx, cy) => {
@@ -486,15 +510,10 @@ function Rig() {
         }
         ball.position.y = y
 
-        /* crater deformation + bruise mark */
+        /* crater deformation (GPU morph, baked once) + bruise mark */
         const amt = impact > tHit ? s(impact, tHit, tHit + 0.08) : 0
-        if (i === 0) {
-          const topVeneer = veneerRefs.current[PLIES - 1]
-          if (topVeneer) displaceTop(topVeneer, amt, DAMAGE[0], sc, scY)
-        } else {
-          const spec = specimenRefs.current[i]
-          if (spec) displaceTop(spec, amt, DAMAGE[i])
-        }
+        const cratered = i === 0 ? veneerRefs.current[PLIES - 1] : specimenRefs.current[i]
+        if (cratered?.morphTargetInfluences) cratered.morphTargetInfluences[0] = amt
         const dent = dentRefs.current[i]
         if (dent) {
           dent.material.opacity = amt * [1, 0.95, 1][i]

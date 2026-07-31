@@ -105,11 +105,33 @@ export default function App() {
       refresh()
     }
     const raf = requestAnimationFrame(nudge)
-    if (document.fonts?.ready) document.fonts.ready.then(refresh).catch(() => {})
-    window.addEventListener('load', refresh)
+    // late re-measures (webfonts landing, window load) are heavy layout
+    // passes — schedule them for a scroll-idle moment so they never eat
+    // the user's first scrolled frames. Each scroll event pushes the
+    // pending refresh back until ~200ms of quiet.
+    let pending = false
+    let idleTimer = 0
+    const attempt = () => {
+      clearTimeout(idleTimer)
+      idleTimer = setTimeout(() => {
+        if (!pending) return
+        pending = false
+        refresh()
+      }, 200)
+    }
+    const schedule = () => {
+      pending = true
+      attempt()
+    }
+    const onScroll = () => pending && attempt()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    if (document.fonts?.ready) document.fonts.ready.then(schedule).catch(() => {})
+    window.addEventListener('load', schedule)
     return () => {
       cancelAnimationFrame(raf)
-      window.removeEventListener('load', refresh)
+      clearTimeout(idleTimer)
+      window.removeEventListener('load', schedule)
+      window.removeEventListener('scroll', onScroll)
     }
   }, [started])
 
