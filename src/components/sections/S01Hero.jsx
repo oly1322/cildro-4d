@@ -71,9 +71,16 @@ export default function S01Hero({ started }) {
     )
   }, [started, fx])
 
-  // copy falls away as the camera starts moving
+  // copy falls away as the camera starts moving. The copy block is a huge
+  // subtree (split-char headline, stroked words, CTAs, stats) — without its
+  // own compositor layer WebKit re-rasterized ALL of it on every opacity
+  // step, which read as "the hero text fade is laggy". will-change promotes
+  // it once; after full fade we stop writing styles altogether.
   useEffect(() => {
     if (!fx) return
+    const el = copyRef.current
+    el.style.willChange = 'opacity, transform'
+    let lastFade = -1
     const st = ScrollTrigger.create({
       trigger: sectionRef.current,
       start: 'top top',
@@ -81,12 +88,18 @@ export default function S01Hero({ started }) {
       scrub: true,
       onUpdate: (self) => {
         const fade = Math.max(0, 1 - self.progress * 2.2)
-        copyRef.current.style.opacity = fade
-        copyRef.current.style.transform = `translateY(${self.progress * -70}px)`
-        copyRef.current.style.pointerEvents = self.progress > 0.2 ? 'none' : ''
+        if (fade <= 0 && lastFade <= 0) return // fully faded: zero work per frame
+        lastFade = fade
+        el.style.opacity = fade
+        el.style.transform = `translateY(${self.progress * -70}px)`
+        el.style.visibility = fade <= 0 ? 'hidden' : ''
+        el.style.pointerEvents = self.progress > 0.2 ? 'none' : ''
       },
     })
-    return () => st.kill()
+    return () => {
+      st.kill()
+      el.style.willChange = ''
+    }
   }, [fx])
 
   const wa = `https://wa.me/${copy.contact.phoneRaw}`
