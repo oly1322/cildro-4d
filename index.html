@@ -109,15 +109,24 @@
           s.src = 'https://www.googletagmanager.com/gtag/js?id=AW-10989710316';
           document.head.appendChild(s);
         }
-        if (document.readyState === 'complete') {
-          setTimeout(loadGtag, 1500);
-        } else {
-          window.addEventListener('load', function(){ setTimeout(loadGtag, 1500); }, { once: true });
+        // Load only after window load AND a stretch of scroll quiet — on
+        // phones load lands mid-first-scroll, and evaluating ~100KB of gtag
+        // right then janks the hero exit. 12s hard cap so it always loads;
+        // gtag() calls buffer into dataLayer meanwhile, conversions survive.
+        function armGtag() {
+          var quiet = setTimeout(loadGtag, 1500);
+          setTimeout(loadGtag, 12000);
+          window.addEventListener('scroll', function () {
+            if (loaded) return;
+            clearTimeout(quiet);
+            quiet = setTimeout(loadGtag, 1200);
+          }, { passive: true });
         }
-        // NOTE: no load-on-first-interaction — the first interaction IS the
-        // first scroll, and injecting+evaluating ~100KB of gtag right then
-        // janks the hero fade. Conversions still work: gtag() calls buffer
-        // into dataLayer until the script lands after onload.
+        if (document.readyState === 'complete') {
+          armGtag();
+        } else {
+          window.addEventListener('load', armGtag, { once: true });
+        }
       })();
 
 

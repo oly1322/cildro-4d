@@ -2,6 +2,11 @@ import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
 gsap.registerPlugin(ScrollTrigger)
+// 'load' is deliberately NOT in the auto-refresh list: on phone cold loads
+// the load event lands mid-first-scroll and the full refresh (a layout pass
+// over every trigger) hitched the hero exit. App.jsx routes window load
+// through its scroll-idle scheduler instead.
+ScrollTrigger.config({ autoRefreshEvents: 'visibilitychange,DOMContentLoaded,resize' })
 export { gsap, ScrollTrigger }
 
 if (import.meta.env.DEV) {

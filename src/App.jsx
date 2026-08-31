@@ -149,7 +149,7 @@ export default function App() {
     }
     const schedule = () => {
       pending = true
-      deadline = performance.now() + 2500
+      deadline = performance.now() + 4000
       attempt()
     }
     const onScroll = () => pending && attempt()

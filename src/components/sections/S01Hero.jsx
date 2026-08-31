@@ -1,43 +1,45 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 import { gsap, ScrollTrigger, splitChars } from '../../lib/fx.js'
 import { useMotion } from '../../lib/motion.jsx'
 import copy from '../../content/copy.js'
 
 /* ── live clocks ticker ───────────────────────────────────────────────── */
 
-function useClocks() {
-  const [times, setTimes] = useState({})
+function Ticker() {
+  // clocks tick via direct textContent writes — a per-second React re-render
+  // of the ~180-span marquee (plus 5 fresh Intl formatters per tick) was
+  // steady main-thread noise competing with the hero fade on phones
+  const rootRef = useRef(null)
   useEffect(() => {
-    const fmt = () => {
-      const next = {}
-      copy.hero.ticker.forEach(({ city, tz }) => {
-        next[city] = new Intl.DateTimeFormat('en-GB', {
-          hour: '2-digit',
-          minute: '2-digit',
-          second: '2-digit',
-          hour12: false,
-          timeZone: tz,
-        }).format(new Date())
+    const fmts = {}
+    copy.hero.ticker.forEach(({ city, tz }) => {
+      fmts[city] = new Intl.DateTimeFormat('en-GB', {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false,
+        timeZone: tz,
       })
-      setTimes(next)
+    })
+    const nodes = rootRef.current.querySelectorAll('[data-clock]')
+    const tick = () => {
+      if (document.hidden) return
+      const now = new Date()
+      nodes.forEach((n) => (n.textContent = fmts[n.dataset.clock].format(now)))
     }
-    fmt()
-    const iv = setInterval(fmt, 1000)
+    tick()
+    const iv = setInterval(tick, 1000)
     return () => clearInterval(iv)
   }, [])
-  return times
-}
-
-function Ticker() {
-  const times = useClocks()
   const cells = copy.hero.ticker.map(({ city }) => (
     <span key={city} className="mlabel text-bone/60 flex items-center gap-3 px-8 whitespace-nowrap">
       <span className="w-1.5 h-1.5 bg-accent inline-block" aria-hidden="true" />
-      {city} <span className="text-bone tabular-nums">{times[city] || '--:--:--'}</span>
+      {city} <span data-clock={city} className="text-bone tabular-nums">--:--:--</span>
     </span>
   ))
   return (
     <div
+      ref={rootRef}
       className="marquee border-t border-bone/10 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] bg-ink/60 md:bg-ink/40 md:backdrop-blur-sm"
       aria-hidden="true"
     >
