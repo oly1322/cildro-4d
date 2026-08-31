@@ -147,11 +147,18 @@ desktop. All branching lives in Experience.jsx's useFrame:
   `lenis.stop()` while `!started` (App.jsx) + swallowed scroll keys + the
   curtain's own `touch-action:none`. The one-time sticky nudge
   (relative→reflow→sticky) stays as extra insurance.
-- **gtag must never load on first interaction** (index.html + ro/index.html):
-  the first interaction IS the first scroll, and evaluating ~100KB of gtag
-  right then janked the hero fade on phones. Load it only after
-  `window.load` + 1.5 s; `gtag()` calls buffer into `dataLayer` meanwhile,
-  so conversions survive.
+- **Keep ALL heavy one-shot work out of the first-scroll window** (Aug 2026
+  mobile fix — the "lags until past the hero" report). Three offenders, all
+  of which used to land mid-first-scroll on phone cold loads:
+  1. gtag (index.html + ro/index.html): loads only after `window.load` AND
+     ~1.2 s of scroll quiet, 12 s hard cap — never on first interaction and
+     never at a fixed post-load delay; `gtag()` buffers into `dataLayer`.
+  2. ScrollTrigger's built-in `load` auto-refresh is disabled
+     (`ScrollTrigger.config` in fx.js, no 'load' in autoRefreshEvents) —
+     App's scroll-idle scheduler owns load-time refreshes (4 s deadline).
+  3. Hero ticker clocks write `textContent` directly ([data-clock] spans,
+     formatters built once, paused when hidden) — never a per-second React
+     re-render of the marquee.
 - `measureRanges` refuses collapsed layouts (0 viewport / zero-height
   `#hero` — hidden or prerendered tabs resolve viewport units to 0) so
   degenerate phase ranges never overwrite the defaults; `xp.live`'s
