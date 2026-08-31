@@ -138,6 +138,26 @@ desktop. All branching lives in Experience.jsx's useFrame:
   snap-x carousel (`no-scrollbar`, cards w-[78%], order matches the
   top→bottom specimen order); `backdrop-blur` is mobile-off everywhere
   (`bg-ink/85 md:bg-ink/70 md:backdrop-blur-*`).
+- **NEVER toggle `overflow` on `<html>`/`<body>` — anywhere, any platform**
+  (Aug 2026 desktop fix): WebKit rebuilds `position:sticky` constraints from
+  the state at release, and a cold-load toggle leaves them stale — the canvas
+  stops pinning, hero renders fine, every section after it is blank until a
+  full reload. This bit iOS first (fixed on touch), then desktop Safari via
+  the preloader's `pointer: fine` scroll lock. The curtain scroll lock is now:
+  `lenis.stop()` while `!started` (App.jsx) + swallowed scroll keys + the
+  curtain's own `touch-action:none`. The one-time sticky nudge
+  (relative→reflow→sticky) stays as extra insurance.
+- **gtag must never load on first interaction** (index.html + ro/index.html):
+  the first interaction IS the first scroll, and evaluating ~100KB of gtag
+  right then janked the hero fade on phones. Load it only after
+  `window.load` + 1.5 s; `gtag()` calls buffer into `dataLayer` meanwhile,
+  so conversions survive.
+- `measureRanges` refuses collapsed layouts (0 viewport / zero-height
+  `#hero` — hidden or prerendered tabs resolve viewport units to 0) so
+  degenerate phase ranges never overwrite the defaults; `xp.live`'s
+  IntersectionObserver must read the NEWEST entry (`entries[len-1]`), and
+  the scroll-idle deferred `ScrollTrigger.refresh()` has a 2.5 s deadline
+  so continuous scrolling can't starve the re-measure.
 - Dev handles: `window.__lenis` and `window.__cam` (DEV only, like `__xp`).
   To scroll the preview: `__lenis.scrollTo(y, {immediate:true})` — plain
   `window.scrollTo` gets overridden by Lenis. Phase-accurate position:
