@@ -78,6 +78,26 @@ export default function App() {
     }
   }, [use3d])
 
+  // scroll lock while the curtain is up — NEVER by toggling overflow on
+  // <html>: WebKit rebuilds position:sticky constraints from the state at
+  // release and a cold-load toggle leaves them stale (canvas stops pinning;
+  // hero renders, every section after it is blank until a full reload).
+  // Lenis owns wheel/touch scrolling, so stopping it IS the desktop lock;
+  // scroll keys are swallowed separately and the curtain's touch-action:none
+  // blocks touch gestures.
+  useEffect(() => {
+    const lenis = lenisRef.current
+    if (started) {
+      lenis?.start()
+      return
+    }
+    lenis?.stop()
+    const KEYS = ['ArrowDown', 'ArrowUp', 'PageDown', 'PageUp', 'Home', 'End', ' ']
+    const onKey = (e) => KEYS.includes(e.key) && e.preventDefault()
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [started, fx])
+
   useEffect(() => {
     const cleanup = initReveals(mainRef.current, { reduced: !fx })
     const t = setTimeout(() => ScrollTrigger.refresh(), 400)
@@ -111,16 +131,25 @@ export default function App() {
     // pending refresh back until ~200ms of quiet.
     let pending = false
     let idleTimer = 0
+    let deadline = 0
+    const flush = () => {
+      pending = false
+      refresh()
+    }
     const attempt = () => {
       clearTimeout(idleTimer)
-      idleTimer = setTimeout(() => {
-        if (!pending) return
-        pending = false
-        refresh()
-      }, 200)
+      if (!pending) return
+      // a continuous scroll must never starve the re-measure forever —
+      // past the deadline, take the one-frame refresh hit mid-scroll
+      if (performance.now() >= deadline) {
+        flush()
+        return
+      }
+      idleTimer = setTimeout(() => pending && flush(), 200)
     }
     const schedule = () => {
       pending = true
+      deadline = performance.now() + 2500
       attempt()
     }
     const onScroll = () => pending && attempt()
@@ -136,9 +165,10 @@ export default function App() {
   }, [started])
 
   useEffect(() => {
-    if (!lenisRef.current) return
+    // pre-start, the curtain lock owns Lenis — don't start it from here
+    if (!lenisRef.current || !started) return
     dirOpen ? lenisRef.current.stop() : lenisRef.current.start()
-  }, [dirOpen])
+  }, [dirOpen, started])
 
   const scrollTo = useCallback((target) => {
     if (lenisRef.current) lenisRef.current.scrollTo(target, { duration: 1.4 })

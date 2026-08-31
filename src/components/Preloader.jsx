@@ -36,12 +36,11 @@ export default function Preloader({ onDone }) {
       onDone()
       return
     }
-    // scroll lock: desktop only. Toggling overflow on <html> leaves WebKit's
-    // position:sticky constraints stale after release (broken pinning on iOS
-    // until the tab is backgrounded) — on touch, the curtain itself blocks
-    // scroll gestures via touch-action:none instead.
-    const lockScroll = window.matchMedia('(pointer: fine)').matches
-    if (lockScroll) document.documentElement.style.overflow = 'hidden'
+    // NO scroll lock via overflow here — toggling overflow on <html> leaves
+    // WebKit's position:sticky constraints stale after release (canvas stops
+    // pinning: hero fine, every section after it blank). Scrolling during
+    // the curtain is blocked in App (Lenis stopped + keys swallowed) and by
+    // the curtain's own touch-action:none.
     let loaded = 0
     let display = 0
     let done = false
@@ -76,10 +75,7 @@ export default function Preloader({ onDone }) {
         done = true
         clearInterval(iv)
         setStamped(true)
-        const finish = () => {
-          document.documentElement.style.overflow = ''
-          onDone()
-        }
+        const finish = () => onDone()
         if (document.hidden) {
           // background tab: rAF (and gsap) is suspended — skip straight to the site
           gsap.set(rootRef.current, { yPercent: -100 })
@@ -99,7 +95,6 @@ export default function Preloader({ onDone }) {
     return () => {
       clearInterval(iv)
       if (onRig) window.removeEventListener('xp:rig-ready', onRig)
-      document.documentElement.style.overflow = ''
     }
   }, [reduced, onDone, preload, use3d])
 

@@ -636,9 +636,12 @@ export default function ExperienceCanvas() {
   useEffect(() => {
     const el = hostRef.current
     if (!el || !('IntersectionObserver' in window)) return
-    const io = new IntersectionObserver(([e]) => (xp.live = e.isIntersecting), {
-      rootMargin: '15% 0px',
-    })
+    // entries arrive oldest-first and can batch — only the LAST one is the
+    // current state; acting on entries[0] can freeze the scene empty
+    const io = new IntersectionObserver(
+      (entries) => (xp.live = entries[entries.length - 1].isIntersecting),
+      { rootMargin: '15% 0px' }
+    )
     io.observe(el)
     return () => {
       io.disconnect()

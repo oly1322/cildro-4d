@@ -45,6 +45,10 @@ export function localOf(name) {
 export function measureRanges(wrapper) {
   const total = wrapper.scrollHeight - window.innerHeight
   if (total <= 0) return
+  // collapsed layout (hidden/prerendered tab: viewport units resolve to 0)
+  // would bake degenerate ranges — keep the previous/default ones instead;
+  // the resize/refresh listeners re-measure once layout is real
+  if (!window.innerHeight || !wrapper.querySelector('#hero')?.offsetHeight) return
   const ids = ['hero', 'surface', 'material', 'shield', 'impact']
   const next = {}
   ids.forEach((id, i) => {
