@@ -12,16 +12,6 @@
   ],
   "redirects": [
     {
-      "source": "/privacy-policy",
-      "destination": "/",
-      "permanent": true
-    },
-    {
-      "source": "/privacy-policy/",
-      "destination": "/",
-      "permanent": true
-    },
-    {
       "source": "/contact-us",
       "destination": "/",
       "permanent": true

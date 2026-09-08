@@ -70,6 +70,21 @@ export default function DirectoryOverlay({ open, onClose, scrollTo }) {
             </li>
           ))}
         </ol>
+        <div className="dir-item mt-10">
+          <div className="mlabel text-bone/40 mb-3">{copy.ui.guidesTitle}</div>
+          <div className="flex flex-wrap gap-x-8 gap-y-2">
+            {copy.ui.guides.map((g) => (
+              <a
+                key={g.href}
+                href={g.href}
+                data-cursor="link"
+                className="mlabel text-bone/70 hover:text-accent underline underline-offset-4"
+              >
+                {g.label}
+              </a>
+            ))}
+          </div>
+        </div>
       </nav>
       <div className="px-5 md:px-8 py-5 border-t border-bone/10 flex flex-wrap gap-x-8 gap-y-2 mlabel text-bone/50">
         <span>{copy.contact.email}</span>

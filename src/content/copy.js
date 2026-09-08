@@ -403,6 +403,12 @@ const en = {
     mailSamplesSubject: 'Free sample box request',
     mailBody: { email: 'Work email', product: 'Product', volume: 'Volume' },
     langLink: { href: '/ro/', label: 'RO' },
+    guidesTitle: 'Guides — from the mill',
+    guides: [
+      { href: '/beech-plywood/', label: 'Beech plywood — the guide' },
+      { href: '/beech-vs-birch-plywood/', label: 'Beech vs birch' },
+      { href: '/fagotex/', label: 'Fagotex film-faced' },
+    ],
   },
 }
 
@@ -802,10 +808,17 @@ const ro = {
     mailSamplesSubject: 'Cerere cutie de mostre gratuite',
     mailBody: { email: 'Email de serviciu', product: 'Produs', volume: 'Volum' },
     langLink: { href: '/', label: 'EN' },
+    guidesTitle: 'Ghiduri — de la fabrică',
+    guides: [
+      { href: '/ro/placaj-fag/', label: 'Placaj fag — ghidul' },
+      { href: '/ro/placaj-fag-vs-mesteacan/', label: 'Fag vs mesteacăn' },
+      { href: '/ro/fagotex/', label: 'Fagotex cu film' },
+    ],
   },
 }
 
-const locales = { en, ro }
+// named export used by the build-time SEO prerender (vite.config.js)
+export const locales = { en, ro }
 export const LANG =
   typeof document !== 'undefined' && document.documentElement.lang === 'ro' ? 'ro' : 'en'
 export default locales[LANG]
