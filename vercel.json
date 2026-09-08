@@ -11,22 +11,90 @@
     }
   ],
   "redirects": [
-    { "source": "/privacy-policy", "destination": "/", "permanent": true },
-    { "source": "/privacy-policy/", "destination": "/", "permanent": true },
-    { "source": "/contact-us", "destination": "/", "permanent": true },
-    { "source": "/contact-us/", "destination": "/", "permanent": true },
-    { "source": "/plywood-sheets/:path*", "destination": "/", "permanent": true },
-    { "source": "/plywood-doors/:path*", "destination": "/", "permanent": true },
-    { "source": "/plywood-sink/:path*", "destination": "/", "permanent": true },
-    { "source": "/dining-and-bistro-tables/:path*", "destination": "/", "permanent": true },
-    { "source": "/portfolio/:path*", "destination": "/", "permanent": true },
-    { "source": "/category/:path*", "destination": "/", "permanent": true },
-    { "source": "/comments/:path*", "destination": "/", "permanent": true },
-    { "source": "/feed/:path*", "destination": "/", "permanent": true },
-    { "source": "/de/:path*", "destination": "/", "permanent": true },
-    { "source": "/ro/category/:path*", "destination": "/ro/", "permanent": true },
-    { "source": "/ro/:slug(chiuveta-lemn|contact-us|privacy-policy)/:path*", "destination": "/ro/", "permanent": true },
-    { "source": "/page-sitemap.xml", "destination": "/sitemap.xml", "permanent": true },
-    { "source": "/category-sitemap.xml", "destination": "/sitemap.xml", "permanent": true }
+    {
+      "source": "/privacy-policy",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/privacy-policy/",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/contact-us",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/contact-us/",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/plywood-sheets(/.*)?",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/plywood-doors(/.*)?",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/plywood-sink(/.*)?",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/dining-and-bistro-tables(/.*)?",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/portfolio(/.*)?",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/category(/.*)?",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/comments(/.*)?",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/feed(/.*)?",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/de(/.*)?",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/ro/category(/.*)?",
+      "destination": "/ro/",
+      "permanent": true
+    },
+    {
+      "source": "/ro/(chiuveta-lemn|contact-us|privacy-policy)(/.*)?",
+      "destination": "/ro/",
+      "permanent": true
+    },
+    {
+      "source": "/page-sitemap.xml",
+      "destination": "/sitemap.xml",
+      "permanent": true
+    },
+    {
+      "source": "/category-sitemap.xml",
+      "destination": "/sitemap.xml",
+      "permanent": true
+    }
   ]
 }
