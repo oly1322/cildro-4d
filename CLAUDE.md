@@ -165,6 +165,21 @@ desktop. All branching lives in Experience.jsx's useFrame:
   IntersectionObserver must read the NEWEST entry (`entries[len-1]`), and
   the scroll-idle deferred `ScrollTrigger.refresh()` has a 2.5 s deadline
   so continuous scrolling can't starve the re-measure.
+- **SEO layer (Sep 2026, phase 1 of the search plan):** static content pages
+  live under `public/` as `<slug>/index.html` sharing `public/pages.css`
+  (dossier look, no JS) — EN: /beech-plywood/, /beech-vs-birch-plywood/,
+  /fagotex/, /privacy-policy/; RO twins: /ro/placaj-fag/,
+  /ro/placaj-fag-vs-mesteacan/, /ro/fagotex/. Every fact on them must trace
+  to copy.js or the owner brief — never invent specs. Each page pairs with
+  its twin via hreflang; all are in public/sitemap.xml. The homepage bakes
+  its full copy into the served HTML via the `cildro-seo-prerender` plugin
+  in vite.config.js (reads `locales` named export from copy.js, injects
+  into #root; React wipes it on mount) — keep copy.js importable from Node
+  (no browser globals outside the LANG guard). The Directory overlay links
+  the guides (copy.ui.guides, both locales). robots.txt/sitemap must always
+  point at cildroplywood.ro (never b2b — that was the Lovable leftover);
+  legacy WordPress URLs 301 via vercel.json. Vite DEV serves /beech-plywood/
+  as SPA fallback — test static pages at /<slug>/index.html or in prod.
 - Dev handles: `window.__lenis` and `window.__cam` (DEV only, like `__xp`).
   To scroll the preview: `__lenis.scrollTo(y, {immediate:true})` — plain
   `window.scrollTo` gets overridden by Lenis. Phase-accurate position:
