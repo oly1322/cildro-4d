@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://b2b.cildroplywood.ro/sitemap.xml
+Sitemap: https://cildroplywood.ro/sitemap.xml
