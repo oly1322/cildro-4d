@@ -6,9 +6,9 @@ import copy from '../../content/copy.js'
 
 function Bar({ pct, label }) {
   return (
-    <div className="mt-2.5">
+    <div className="mt-2 md:mt-2.5">
       <div className="mlabel text-bone/80 mb-1">{label}</div>
-      <div className="h-1.5 bg-bone/15 relative overflow-hidden">
+      <div className="h-1 md:h-1.5 bg-bone/15 relative overflow-hidden">
         <div className="stat-bar absolute inset-y-0 left-0 bg-accent origin-left" style={{ width: `${pct}%` }} />
       </div>
     </div>
@@ -71,12 +71,12 @@ export default function S05Impact() {
         {/* stat columns over the three specimens — snap carousel on phones
             (cards in the same top→bottom order as the specimens on screen) */}
         <div className="absolute bottom-[calc(1.25rem+env(safe-area-inset-bottom))] md:bottom-8 inset-x-0 md:inset-x-8">
-          <p className="md:hidden mlabel text-bone/35 text-right px-5 mb-1.5">{copy.ui.swipeCards}</p>
+          <p className="md:hidden mlabel text-bone/35 text-right px-5 mb-1">{copy.ui.swipeCards}</p>
           <div className="flex gap-3 overflow-x-auto snap-x snap-mandatory no-scrollbar px-5 pointer-events-auto md:pointer-events-none md:grid md:grid-cols-3 md:gap-4 md:overflow-visible md:px-0">
             {copy.impact.rows.map((r) => (
               <div
                 key={r.id}
-                className="snap-center shrink-0 w-[78%] md:w-auto md:shrink md:snap-align-none bg-ink/85 md:bg-ink/70 md:backdrop-blur-sm border border-bone/15 px-4 py-3 md:py-4"
+                className="snap-center shrink-0 w-[78%] md:w-auto md:shrink md:snap-align-none bg-ink/85 md:bg-ink/70 md:backdrop-blur-sm border border-bone/15 px-3.5 py-2.5 md:px-4 md:py-4"
               >
                 <div className="flex items-baseline justify-between">
                   <h3 className={`font-display uppercase text-lg md:text-xl ${r.id === 'beech' ? 'text-accent' : 'text-bone'}`}>
@@ -90,7 +90,7 @@ export default function S05Impact() {
                 <Bar pct={(r.density / 750) * 100} label={`${copy.ui.density} — ${r.densityLabel}`} />
                 <Bar pct={r.hardnessPct} label={`${copy.ui.hardness} — ${r.hardness}`} />
                 <Bar pct={r.bendingPct} label={`${copy.ui.bending} — ${r.bending}`} />
-                <p className={`mlabel mt-2.5 md:mt-3 ${r.id === 'beech' ? 'text-accent' : 'text-bone/50'}`}>
+                <p className={`mlabel mt-2 md:mt-3 ${r.id === 'beech' ? 'text-accent' : 'text-bone/50'}`}>
                   {copy.ui.verdict} {r.verdict}
                 </p>
               </div>

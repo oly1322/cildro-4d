@@ -6,7 +6,7 @@ import copy from '../../content/copy.js'
 function Toggle({ label, options, value, onPick }) {
   return (
     <div className="flex-1 md:flex-none">
-      <p className="mlabel text-bone/50 mb-2 md:mb-3">{label}</p>
+      <p className="mlabel text-bone/50 mb-1.5 md:mb-3">{label}</p>
       <div className="flex gap-px bg-bone/20 border border-bone/20 w-full md:w-max">
         {options.map((o) => (
           <button
@@ -14,7 +14,7 @@ function Toggle({ label, options, value, onPick }) {
             onClick={() => onPick(o.id)}
             aria-pressed={value === o.id}
             data-cursor="view"
-            className={`flex-1 md:flex-none px-3 md:px-5 py-3.5 md:py-4 font-mono text-[11px] uppercase tracking-micro transition-colors ${
+            className={`flex-1 md:flex-none px-3 md:px-5 py-2.5 md:py-4 font-mono text-[11px] uppercase tracking-micro transition-colors ${
               value === o.id ? 'bg-accent text-ink' : 'bg-ink/80 text-bone hover:bg-ink3'
             }`}
           >
@@ -47,7 +47,7 @@ export default function S04Shield() {
             <h2 className="h-display text-3xl md:text-6xl text-bone max-w-[13ch]">
               {copy.shield.titleA} <span className="outline-text">{copy.shield.titleB}</span>
             </h2>
-            <p className="font-body text-sm md:text-base text-bone/65 mt-4 max-w-[40ch]">{copy.shield.desc}</p>
+            <p className="font-body text-sm md:text-base text-bone/65 mt-3 md:mt-4 max-w-[40ch]">{copy.shield.desc}</p>
           </div>
           <span className="mlabel text-bone/40 hidden md:block pt-2">{copy.ui.fig04}</span>
         </div>
@@ -67,7 +67,7 @@ export default function S04Shield() {
         )}
 
         {/* film options */}
-        <div className="absolute bottom-[calc(1.5rem+env(safe-area-inset-bottom))] md:bottom-10 inset-x-5 md:inset-x-8 flex items-end justify-between flex-wrap gap-3 md:gap-6 pointer-events-auto">
+        <div className="absolute bottom-[calc(1.25rem+env(safe-area-inset-bottom))] md:bottom-10 inset-x-5 md:inset-x-8 flex items-end justify-between flex-wrap gap-2 md:gap-6 pointer-events-auto">
           <div className="flex gap-3 md:gap-6 flex-wrap w-full md:w-auto">
             <Toggle
               label={copy.shield.films.label}
@@ -88,7 +88,7 @@ export default function S04Shield() {
               }}
             />
           </div>
-          <span className="mlabel text-accent">{copy.shield.hint}</span>
+          <span className="mlabel text-accent hidden md:inline">{copy.shield.hint}</span>
         </div>
         </div>
       </div>

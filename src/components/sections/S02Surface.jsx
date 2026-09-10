@@ -53,8 +53,10 @@ export default function S02Surface() {
         )}
 
         {/* grade picker — phones: full-width thumb row with the info card above */}
-        <div className="absolute bottom-[calc(1.5rem+env(safe-area-inset-bottom))] md:bottom-10 inset-x-5 md:inset-x-8 pointer-events-auto">
-          <div className="flex flex-col-reverse gap-3 md:flex-row md:items-end md:justify-between md:flex-wrap md:gap-4">
+        <div className="absolute bottom-[calc(1.25rem+env(safe-area-inset-bottom))] md:bottom-10 inset-x-5 md:inset-x-8 pointer-events-auto">
+          {/* phones: picker first, info card at the very bottom — the board
+              keeps the room; the deepest element hugs the screen edge */}
+          <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between md:flex-wrap md:gap-4">
             <div>
               <p
                 className="mlabel text-bone/60 mb-2 md:mb-3"
@@ -69,7 +71,7 @@ export default function S02Surface() {
                     onClick={() => pick(g.id)}
                     aria-pressed={gradeId === g.id}
                     data-cursor="view"
-                    className={`flex-1 md:flex-none md:w-16 py-3.5 md:py-4 font-display text-lg md:text-xl transition-colors ${
+                    className={`flex-1 md:flex-none md:w-16 py-2.5 md:py-4 font-display text-lg md:text-xl transition-colors ${
                       gradeId === g.id ? 'bg-accent text-ink' : 'bg-ink/80 text-bone hover:bg-ink3'
                     }`}
                   >
@@ -78,11 +80,11 @@ export default function S02Surface() {
                 ))}
               </div>
             </div>
-            <div className="w-full md:w-auto md:max-w-xs bg-ink/85 md:bg-ink/70 md:backdrop-blur-sm border border-bone/15 px-4 py-2.5 md:py-3">
-              <p className="mlabel text-bone/50 mb-1">
+            <div className="w-full md:w-auto md:max-w-xs bg-ink/85 md:bg-ink/70 md:backdrop-blur-sm border border-bone/15 px-4 py-2 md:py-3">
+              <p className="mlabel text-bone/50 mb-0.5 md:mb-1">
                 {copy.showroom.gradeWord} {gradeId.toUpperCase()} — {copy.showroom.rawBeech}
               </p>
-              <p className="font-body text-xs text-bone/80 leading-relaxed min-h-[3em]">
+              <p className="font-body text-[11px] md:text-xs text-bone/80 leading-relaxed md:min-h-[3em]">
                 {gradeId === 'i' ? copy.showroom.grades[0].desc : copy.showroom.gradeFallbackDesc}
               </p>
             </div>

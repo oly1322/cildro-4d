@@ -87,9 +87,9 @@ export default function S03Material() {
         </div>
 
         {/* glue picker + veneer note */}
-        <div className="absolute bottom-[calc(1.5rem+env(safe-area-inset-bottom))] md:bottom-10 inset-x-5 md:inset-x-8 flex flex-col md:flex-row md:items-end md:justify-between md:flex-wrap gap-3 md:gap-4 pointer-events-auto">
+        <div className="absolute bottom-[calc(1.25rem+env(safe-area-inset-bottom))] md:bottom-10 inset-x-5 md:inset-x-8 flex flex-col md:flex-row md:items-end md:justify-between md:flex-wrap gap-2 md:gap-4 pointer-events-auto">
           <div>
-            <p className="mlabel text-bone/50 mb-2 md:mb-3">{copy.material.glue.label}</p>
+            <p className="mlabel text-bone/50 mb-1.5 md:mb-3">{copy.material.glue.label}</p>
             <div className="flex gap-px bg-bone/20 border border-bone/20 w-full md:w-max">
               {copy.material.glue.options.map((o) => (
                 <button
@@ -97,7 +97,7 @@ export default function S03Material() {
                   onClick={() => pick(o.id)}
                   aria-pressed={glue === o.id}
                   data-cursor="view"
-                  className={`flex-1 md:flex-none px-4 md:px-5 py-3.5 md:py-4 font-mono text-[11px] uppercase tracking-micro transition-colors ${
+                  className={`flex-1 md:flex-none px-4 md:px-5 py-2.5 md:py-4 font-mono text-[11px] uppercase tracking-micro transition-colors ${
                     glue === o.id ? 'bg-accent text-ink' : 'bg-ink/80 text-bone hover:bg-ink3'
                   }`}
                 >
