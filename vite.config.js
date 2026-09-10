@@ -19,6 +19,9 @@ function seoBlock(c, ro) {
   const fago = ro ? '/ro/fagotex/' : '/fagotex/'
   const li = (a) => a.map((x) => `<li>${esc(x)}</li>`).join('')
   return `
+<div style="position:fixed;inset:0;z-index:120;background:#17120D;display:flex;align-items:center;justify-content:center" aria-hidden="true">
+  <span style="font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:11px;letter-spacing:0.14em;color:rgba(237,228,211,0.5);text-transform:uppercase">${esc(c.ui.preloaderTop)}</span>
+</div>
 <div class="seo-static" style="background:#17120D;color:#EDE4D3;font-family:Archivo,Arial,sans-serif;max-width:880px;margin:0 auto;padding:32px 20px;line-height:1.6">
   <h1>${esc(c.hero.headline)}</h1>
   <p>${esc(c.hero.banner)}</p>
