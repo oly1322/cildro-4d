@@ -269,7 +269,7 @@ const en = {
     rows: [
       { k: 'Density', v: '750 kg/m³', std: 'EN-323' },
       { k: 'Moisture', v: 'max 8%', std: 'EN-322' },
-      { k: 'Bonding class', v: '3', std: 'EN-314-2' },
+      { k: 'Bonding class', v: '2 — protected exterior environments', std: 'EN-314-2' },
       { k: 'Emission class', v: 'E1', std: 'EN-717-1' },
       { k: 'Bending strength', v: '75 N/mm² longitudinal / 68 transverse', std: 'EN-310' },
       { k: 'Modulus of elasticity', v: '8300 / 7100 N/mm²', std: 'EN-310' },
@@ -675,7 +675,7 @@ const ro = {
     rows: [
       { k: 'Densitate', v: '750 kg/m³', std: 'EN-323' },
       { k: 'Umiditate', v: 'max 8%', std: 'EN-322' },
-      { k: 'Clasa de încleiere', v: '3', std: 'EN-314-2' },
+      { k: 'Clasa de încleiere', v: '2 — medii exterioare protejate', std: 'EN-314-2' },
       { k: 'Clasa de emisii', v: 'E1', std: 'EN-717-1' },
       { k: 'Rezistență la încovoiere', v: '75 N/mm² longitudinal / 68 transversal', std: 'EN-310' },
       { k: 'Modul de elasticitate', v: '8300 / 7100 N/mm²', std: 'EN-310' },
