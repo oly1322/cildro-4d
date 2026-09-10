@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 import { xp, localOf } from '../lib/xp.js'
@@ -627,6 +627,41 @@ export default function ExperienceCanvas() {
   const wk = navigator.vendor === 'Apple Computer, Inc.'
   const lowTier = light && (navigator.deviceMemory || 8) <= 4
 
+  // Warm-up resolution (phones): the first seconds of a cold load are the
+  // phone at its weakest — JS still interpreting the hot path, GPU clocks
+  // still ramping — and exactly when the user makes their first scrolls
+  // through the hero. Render at reduced dpr through that window, then step
+  // up to full sharpness at the first ≥400 ms scroll-quiet moment after
+  // ~4.5 s (the step is a canvas resize, so it must never land mid-gesture;
+  // 20 s hard cap so nobody stays soft forever).
+  const [dpr, setDpr] = useState(() => (lowTier ? 1 : light ? 1.2 : null))
+  useEffect(() => {
+    if (!light || lowTier) return
+    const READY_AT = performance.now() + 4500
+    let quietTimer = 0
+    let done = false
+    const cleanup = () => {
+      clearTimeout(quietTimer)
+      clearTimeout(hardCap)
+      window.removeEventListener('scroll', onScroll)
+    }
+    const stepUp = () => {
+      if (done) return
+      done = true
+      cleanup()
+      setDpr(Math.min(1.5, window.devicePixelRatio || 1.5))
+    }
+    const attempt = () => {
+      clearTimeout(quietTimer)
+      quietTimer = setTimeout(stepUp, Math.max(400, READY_AT - performance.now()))
+    }
+    const onScroll = () => attempt()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    const hardCap = setTimeout(stepUp, 20000)
+    attempt()
+    return cleanup
+  }, [light, lowTier])
+
   // sections 06–09 sit below the experience wrapper, so the canvas is fully
   // offscreen there — the rig then draws nothing (xp.live, read in useFrame)
   // instead of shading a fullscreen scene nobody sees. NOTE: deliberately
@@ -652,7 +687,7 @@ export default function ExperienceCanvas() {
   return (
     <div ref={hostRef} className="h-full w-full">
       <Canvas
-        dpr={lowTier ? 1 : light ? [1, 1.5] : [1, 1.8]}
+        dpr={dpr ?? [1, 1.8]}
         camera={{ fov: 30, position: [2.7, 1.6, 3.6] }}
         gl={{ antialias: !light || wk, alpha: false, powerPreference: 'high-performance', stencil: false }}
         onCreated={({ camera, gl, scene }) => {
