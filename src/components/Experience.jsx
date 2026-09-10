@@ -117,6 +117,18 @@ const GAP_M = 0.2
 const LANE = 1.3
 const LANE_M = 1.02
 
+/* hoisted hot-path helpers/tables — useFrame runs 60×/s and every array or
+   closure allocated inside it becomes GC food; the phone timeline showed
+   partial GCs firing every ~100-200 ms, whose pauses read as scroll jank
+   while the engine is still cold. Nothing below may be recreated per frame. */
+const DROPS_P = [0.18, 0.44, 0.7]
+const DROPS_D = [0.24, 0.42, 0.6]
+const DENT_OPACITY = [1, 0.95, 1]
+const DENT_R = [0.95, 1.1, 1.7]
+const rotOf = (pose, portrait) => (portrait && pose.rotYM != null ? pose.rotYM : pose.rotY)
+const laneXof = (i, portrait, lane) => (portrait ? 0 : (i - 1) * lane)
+const laneZof = (i, portrait, lane) => (portrait ? (i - 1) * lane : 0)
+
 /* ── canvas textures ──────────────────────────────────────────────────── */
 
 /**
@@ -378,21 +390,23 @@ function Rig() {
     // finish by ~0.65 of the range to stay inside the pinned viewport
     const explode = s(material, 0.04, 0.5) * (1 - s(shield, 0, 0.22))
     const gap = portrait ? GAP_M : GAP
-    veneerRefs.current.forEach((m, i) => {
-      if (!m) return
-      m.position.y = (i - (PLIES - 1) / 2) * (VT + gap * explode)
-    })
-    glueRefs.current.forEach((g, i) => {
-      if (!g) return
+    const step = VT + gap * explode
+    const glueOpacity = explode * (xp.glue === 'melamine' ? 0.85 : 0.97)
+    for (let i = 0; i < veneerRefs.current.length; i++) {
+      const m = veneerRefs.current[i]
+      if (m) m.position.y = (i - (PLIES - 1) / 2) * step
+    }
+    for (let i = 0; i < glueRefs.current.length; i++) {
+      const g = glueRefs.current[i]
+      if (!g) continue
       // the film rides ON the face of the veneer below it (just rolled on),
       // not floating mid-gap — that's what kept it reading as a shadow
-      const step = VT + gap * explode
       g.position.y = (i - (PLIES - 1) / 2) * step + VT / 2 + 0.001
-      g.material.opacity = explode * (xp.glue === 'melamine' ? 0.85 : 0.97)
+      g.material.opacity = glueOpacity
       // a fully transparent mesh still costs full fill rate — skip it
       g.visible = explode > 0.01
       g.scale.setScalar(0.995)
-    })
+    }
 
     /* ---- shield film ----
        portrait lands the film early (by ~0.36) so there's still pinned
@@ -428,17 +442,15 @@ function Rig() {
       : xp.p < xp.ranges.shield[0] ? 2
       : xp.p < xp.ranges.impact[0] ? 3
       : 4
-    const locals = [hero, surface, material, shield, impact]
-    const local = locals[poseIdx]
+    const local =
+      poseIdx === 0 ? hero : poseIdx === 1 ? surface : poseIdx === 2 ? material : poseIdx === 3 ? shield : impact
     const a = POSES[poseIdx]
     const b = POSES[poseIdx + 1]
-    // portrait-aware pose rotation (board turns 90° in portrait where set)
-    const rotOf = (pose) => (portrait && pose.rotYM != null ? pose.rotYM : pose.rotY)
     // hold the phase pose, transition in the last stretch of the phase
     const t = s(local, 0.75, 1)
     const drift = poseIdx <= 1 ? Math.sin(state.clock.elapsedTime * 0.16) * 0.05 : 0
-    panel.rotation.y = lerp(rotOf(a), rotOf(b), t) + drift * (1 - t)
-    if (poseIdx === 4) panel.rotation.y = lerp(rotOf(a), 0, s(impact, 0, 0.16))
+    panel.rotation.y = lerp(rotOf(a, portrait), rotOf(b, portrait), t) + drift * (1 - t)
+    if (poseIdx === 4) panel.rotation.y = lerp(rotOf(a, portrait), 0, s(impact, 0, 0.16))
 
     /* ---- opening: portrait standing panel tips down into the beauty pose ----
        the flat-state Y rotation blends into the NEXT phase's rotY during the
@@ -446,7 +458,7 @@ function Rig() {
     const tip = poseIdx === 0 ? s(hero, 0.12, 0.68) : 1
     if (poseIdx === 0) {
       const yStand = lerp(0.02, POSES[0].rotY + drift, tip)
-      _qFlat.setFromEuler(_eFlat.set(0, lerp(yStand, rotOf(POSES[1]), t), 0))
+      _qFlat.setFromEuler(_eFlat.set(0, lerp(yStand, rotOf(POSES[1], portrait), t), 0))
       panel.quaternion.slerpQuaternions(Q_STAND, _qFlat, tip)
       // portrait: keep the standing panel dead-center under the copy
       panel.position.x = (portrait ? 0 : 1.05) * (1 - tip)
@@ -475,13 +487,17 @@ function Rig() {
     const bL = (portrait && b.lookM) || b.look
     const frontal = portrait ? HERO_FRONTAL_M : HERO_FRONTAL
     // hero pose morphs frontal → beauty while the panel tips down
-    const aPos =
-      poseIdx === 0
-        ? [lerp(frontal[0], aP[0], tip), lerp(frontal[1], aP[1], tip), lerp(frontal[2], aP[2], tip)]
-        : aP
-    const px = lerp(aPos[0], bP[0], t) * ds
-    const py = lerp(aPos[1], bP[1], t) * ds
-    const pz = lerp(aPos[2], bP[2], t) * ds
+    let ax = aP[0]
+    let ay = aP[1]
+    let az = aP[2]
+    if (poseIdx === 0) {
+      ax = lerp(frontal[0], ax, tip)
+      ay = lerp(frontal[1], ay, tip)
+      az = lerp(frontal[2], az, tip)
+    }
+    const px = lerp(ax, bP[0], t) * ds
+    const py = lerp(ay, bP[1], t) * ds
+    const pz = lerp(az, bP[2], t) * ds
     const mx = poseIdx <= 1 ? mouse.current.x * 0.12 : 0
     const my = poseIdx <= 1 ? mouse.current.y * 0.08 : 0
     cam.position.set(
@@ -496,14 +512,14 @@ function Rig() {
       trioRef.current.visible = impact > 0.01
       trioRef.current.position.y = -0.02
       // lane axis: X on desktop (side by side), Z in portrait (down the screen)
-      const laneX = (i) => (portrait ? 0 : (i - 1) * lane)
-      const laneZ = (i) => (portrait ? (i - 1) * lane : 0)
       const softSpec = specimenRefs.current[2]
-      if (softSpec) softSpec.position.set(laneX(2), 0, laneZ(2))
+      if (softSpec) softSpec.position.set(laneXof(2, portrait, lane), 0, laneZof(2, portrait, lane))
       const show = s(impact, 0.04, 0.2)
-      trioRef.current.children.forEach((ch) => {
+      const kids = trioRef.current.children
+      for (let k = 0; k < kids.length; k++) {
+        const ch = kids[k]
         if (ch.material && ch.material.transparent) ch.material.opacity = show
-      })
+      }
       const restY = 0.025 + 0.075
       /* portrait (owner-tuned in Lovable, ported): wider gaps so the balls
          land strictly ONE AFTER THE OTHER while scrolling — 0.28 / 0.54 /
@@ -512,12 +528,13 @@ function Rig() {
          top-down camera sees everything, and the old "hover 0.12 early"
          (invisible above the frame on desktop) read as balls floating
          around mid-air. Desktop keeps the original approved choreography. */
-      const drops = portrait ? [0.18, 0.44, 0.7] : [0.24, 0.42, 0.6]
+      const drops = portrait ? DROPS_P : DROPS_D
       const startY = portrait ? 0.75 : 1.6
-      ballRefs.current.forEach((ball, i) => {
-        if (!ball) return
-        ball.position.x = laneX(i)
-        ball.position.z = laneZ(i)
+      for (let i = 0; i < ballRefs.current.length; i++) {
+        const ball = ballRefs.current[i]
+        if (!ball) continue
+        ball.position.x = laneXof(i, portrait, lane)
+        ball.position.z = laneZof(i, portrait, lane)
         const t0 = drops[i]
         const tHit = t0 + 0.1
         ball.visible = portrait ? impact >= t0 : impact > t0 - 0.12 && impact > 0.2
@@ -548,12 +565,15 @@ function Rig() {
         if (cratered?.morphTargetInfluences) cratered.morphTargetInfluences[0] = amt
         const dent = dentRefs.current[i]
         if (dent) {
-          dent.material.opacity = amt * [1, 0.95, 1][i]
-          const r = [0.95, 1.1, 1.7][i]
-          dent.scale.setScalar(0.2 + amt * r)
-          dent.position.set(laneX(i), 0.027 - DAMAGE[i].depth * amt * 0.8, laneZ(i))
+          dent.material.opacity = amt * DENT_OPACITY[i]
+          dent.scale.setScalar(0.2 + amt * DENT_R[i])
+          dent.position.set(
+            laneXof(i, portrait, lane),
+            0.027 - DAMAGE[i].depth * amt * 0.8,
+            laneZof(i, portrait, lane)
+          )
         }
-      })
+      }
     }
   })
 

@@ -27,21 +27,25 @@ export default function HUD({ onOpenDirectory }) {
     )
     sections.forEach((s) => io.observe(s))
 
-    // rAF-coalesced: at most one React commit per frame while scrolling
+    // rAF-coalesced, layout-free: bars animate via transform scale (height/
+    // width writes forced a full Layout every scrolled frame — visible as
+    // per-frame Layout events in the phone timeline), and the counter text
+    // is only touched when the rounded value actually changes.
     let raf = 0
+    let lastPct = -1
     const onScroll = () => {
       if (raf) return
       raf = requestAnimationFrame(() => {
         raf = 0
         const h = document.documentElement.scrollHeight - window.innerHeight
         const p = h > 0 ? window.scrollY / h : 0
-        const pc = `${p * 100}%`
-        if (barRef.current) barRef.current.style.height = pc
-        if (mBarRef.current) mBarRef.current.style.width = pc
-        if (pctRef.current)
-          pctRef.current.textContent = `${Math.round(p * 100)
-            .toString()
-            .padStart(3, '0')} / 100`
+        if (barRef.current) barRef.current.style.transform = `scaleY(${p})`
+        if (mBarRef.current) mBarRef.current.style.transform = `scaleX(${p})`
+        const pct = Math.round(p * 100)
+        if (pct !== lastPct && pctRef.current) {
+          lastPct = pct
+          pctRef.current.textContent = `${pct.toString().padStart(3, '0')} / 100`
+        }
       })
     }
     window.addEventListener('scroll', onScroll, { passive: true })
@@ -98,13 +102,13 @@ export default function HUD({ onOpenDirectory }) {
 
       {/* mobile: hairline progress under the header (side rules are hidden) */}
       <div className="fixed top-0 inset-x-0 h-[2px] z-[85] md:hidden pointer-events-none" aria-hidden="true">
-        <div ref={mBarRef} className="h-full bg-accent" style={{ width: 0 }} />
+        <div ref={mBarRef} className="h-full w-full bg-accent origin-left" style={{ transform: 'scaleX(0)' }} />
       </div>
 
       {/* right: progress rule */}
       <div className="fixed top-0 right-0 bottom-0 w-8 z-[80] hidden md:flex flex-col items-center justify-center pointer-events-none mix-blend-difference text-white" aria-hidden="true">
         <div className="relative h-40 w-px bg-white/25">
-          <div ref={barRef} className="absolute top-0 left-0 w-px bg-white" style={{ height: 0 }} />
+          <div ref={barRef} className="absolute inset-0 bg-white origin-top" style={{ transform: 'scaleY(0)' }} />
         </div>
         <span ref={pctRef} className="mlabel opacity-60 mt-4 [writing-mode:vertical-rl]">
           000 / 100
