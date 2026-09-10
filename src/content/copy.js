@@ -66,7 +66,7 @@ const en = {
   shield: {
     eyebrow: 'Fagotex',
     titleA: 'Then we',
-    titleB: 'seal it.',
+    titleB: 'shield it.',
     desc: 'Phenolic film-faced, anti-slip. For trailer floors, van linings and vehicle bodies.',
     // film options supplied directly by the owner in brief
     films: {
@@ -473,7 +473,7 @@ const ro = {
   shield: {
     eyebrow: 'Fagotex',
     titleA: 'Apoi îl',
-    titleB: 'sigilăm.',
+    titleB: 'protejăm.',
     desc: 'Film fenolic antiderapant. Pentru podele de remorci, căptușeli de dube și caroserii.',
     films: {
       label: 'Culoarea filmului',
