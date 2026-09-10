@@ -156,6 +156,9 @@ desktop. All branching lives in Experience.jsx's useFrame:
   2. ScrollTrigger's built-in `load` auto-refresh is disabled
      (`ScrollTrigger.config` in fx.js, no 'load' in autoRefreshEvents) —
      App's scroll-idle scheduler owns load-time refreshes (4 s deadline).
+  3.5. Hero copy fades as TWO promoted layers (top copy + bottom CTAs, not one
+     fullscreen layer incl. the transparent middle); intro char tweens finish
+     instantly on first scroll; fade writes deduped (S01Hero.jsx).
   3. Hero ticker clocks write `textContent` directly ([data-clock] spans,
      formatters built once, paused when hidden) — never a per-second React
      re-render of the marquee.

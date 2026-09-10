@@ -55,7 +55,10 @@ export default function S01Hero({ started }) {
   const { fx, webgl } = useMotion()
   const sectionRef = useRef(null)
   const copyRef = useRef(null)
+  const topRef = useRef(null)
+  const botRef = useRef(null)
   const h1Ref = useRef(null)
+  const introTweens = useRef([])
   const use3d = fx && webgl
 
   useEffect(() => {
@@ -65,42 +68,65 @@ export default function S01Hero({ started }) {
       gsap.set(chars, { y: 0 })
       return
     }
-    gsap.to(chars, { y: 0, duration: 0.9, stagger: 0.016, ease: 'power4.out', delay: 0.15 })
-    gsap.fromTo(
-      copyRef.current.querySelectorAll('.hero-fade'),
-      { y: 26, opacity: 0 },
-      { y: 0, opacity: 1, stagger: 0.09, duration: 0.8, delay: 0.5, ease: 'power3.out' }
-    )
+    introTweens.current = [
+      gsap.to(chars, { y: 0, duration: 0.9, stagger: 0.016, ease: 'power4.out', delay: 0.15 }),
+      gsap.fromTo(
+        copyRef.current.querySelectorAll('.hero-fade'),
+        { y: 26, opacity: 0 },
+        { y: 0, opacity: 1, stagger: 0.09, duration: 0.8, delay: 0.5, ease: 'power3.out' }
+      ),
+    ]
   }, [started, fx])
 
-  // copy falls away as the camera starts moving. The copy block is a huge
-  // subtree (split-char headline, stroked words, CTAs, stats) — without its
-  // own compositor layer WebKit re-rasterized ALL of it on every opacity
-  // step, which read as "the hero text fade is laggy". will-change promotes
-  // it once; after full fade we stop writing styles altogether.
+  // copy falls away as the camera starts moving. TWO promoted layers (copy
+  // block + CTA/stats block), not one fullscreen layer: the phone pays
+  // compositing bandwidth per layer PIXEL every fade frame, and the old
+  // whole-container layer included the big transparent middle where the
+  // panel shows through. Writes are deduped (sub-visible deltas skipped,
+  // visibility/pointer-events only on state changes) and the char-intro
+  // tweens finish instantly on first scroll — their ~40 per-char style
+  // writes overlapping the exit fade were a chunk of first-scroll jank.
   useEffect(() => {
     if (!fx) return
-    const el = copyRef.current
-    el.style.willChange = 'opacity, transform'
+    const els = [topRef.current, botRef.current]
+    els.forEach((el) => (el.style.willChange = 'opacity, transform'))
     let lastFade = -1
+    let hidden = false
+    let inactive = false
     const st = ScrollTrigger.create({
       trigger: sectionRef.current,
       start: 'top top',
       end: 'bottom bottom',
       scrub: true,
       onUpdate: (self) => {
+        if (self.progress > 0.01 && introTweens.current.length) {
+          introTweens.current.forEach((t) => t.progress(1))
+          introTweens.current = []
+        }
         const fade = Math.max(0, 1 - self.progress * 2.2)
         if (fade <= 0 && lastFade <= 0) return // fully faded: zero work per frame
+        if (fade > 0 && lastFade > 0 && Math.abs(fade - lastFade) < 0.003) return
         lastFade = fade
-        el.style.opacity = fade
-        el.style.transform = `translateY(${self.progress * -70}px)`
-        el.style.visibility = fade <= 0 ? 'hidden' : ''
-        el.style.pointerEvents = self.progress > 0.2 ? 'none' : ''
+        const ty = `translateY(${(self.progress * -70).toFixed(1)}px)`
+        for (const el of els) {
+          el.style.opacity = fade
+          el.style.transform = ty
+        }
+        const wantHidden = fade <= 0
+        if (wantHidden !== hidden) {
+          hidden = wantHidden
+          els.forEach((el) => (el.style.visibility = wantHidden ? 'hidden' : ''))
+        }
+        const wantInactive = self.progress > 0.2
+        if (wantInactive !== inactive) {
+          inactive = wantInactive
+          els.forEach((el) => (el.style.pointerEvents = wantInactive ? 'none' : ''))
+        }
       },
     })
     return () => {
       st.kill()
-      el.style.willChange = ''
+      els.forEach((el) => (el.style.willChange = ''))
     }
   }, [fx])
 
@@ -139,6 +165,7 @@ export default function S01Hero({ started }) {
           ref={copyRef}
           className="hero-copy relative z-10 h-full flex flex-col justify-start md:justify-center px-5 md:px-16 max-w-[920px] pt-24 md:pt-16 pb-28"
         >
+          <div ref={topRef}>
           <p className="hero-fade mlabel text-accent mb-4 flex items-center gap-3">
             <span className="regmark" aria-hidden="true" />
             {copy.hero.banner}
@@ -152,10 +179,12 @@ export default function S01Hero({ started }) {
           <p className="hero-sub hero-fade font-body text-[13px] md:text-[15px] text-bone/70 max-w-[58ch] mt-4 leading-relaxed">
             {copy.hero.sub}
           </p>
+          </div>
 
           {/* phones: the standing panel gets the middle of the screen */}
           <div className="flex-1 md:hidden" aria-hidden="true" />
 
+          <div ref={botRef}>
           <div className="hero-fade grid grid-cols-2 gap-3 mt-6 sm:flex sm:flex-wrap">
             <a href="#quote" className="btn btn-accent" data-cursor="link">{copy.hero.ctas.primary}</a>
             <a href={wa} target="_blank" rel="noreferrer" className="btn btn-wa" data-cursor="link">{copy.hero.ctas.whatsapp}</a>
@@ -191,6 +220,7 @@ export default function S01Hero({ started }) {
                 {b}
               </span>
             ))}
+          </div>
           </div>
         </div>
 
