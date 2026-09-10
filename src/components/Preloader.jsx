@@ -45,8 +45,8 @@ export default function Preloader({ onDone }) {
     let display = 0
     let done = false
     const start = performance.now()
-    // +1 chunk, +1 rig-ready, +1 warm-up sweep done (3D only)
-    const total = preload.length + (use3d ? 3 : 0)
+    // +1 chunk, +1 rig-ready (3D only)
+    const total = preload.length + (use3d ? 2 : 0)
 
     preload.forEach((src) => {
       const img = new Image()
@@ -54,7 +54,6 @@ export default function Preloader({ onDone }) {
       img.src = src
     })
     let onRig = null
-    let onWarm = null
     if (use3d) {
       // same chunk App lazy-loads — Vite dedupes, this just starts it NOW
       import('./Experience.jsx').then(
@@ -63,10 +62,6 @@ export default function Preloader({ onDone }) {
       )
       onRig = () => (loaded += 1)
       window.addEventListener('xp:rig-ready', onRig, { once: true })
-      // App's behind-the-curtain scroll sweep (JIT warm-up) — has its own
-      // 2.5 s failsafe, and the 12 s valve backstops everything
-      onWarm = () => (loaded += 1)
-      window.addEventListener('xp:warmed', onWarm, { once: true })
     }
 
     const iv = setInterval(() => {
@@ -100,7 +95,6 @@ export default function Preloader({ onDone }) {
     return () => {
       clearInterval(iv)
       if (onRig) window.removeEventListener('xp:rig-ready', onRig)
-      if (onWarm) window.removeEventListener('xp:warmed', onWarm)
     }
   }, [reduced, onDone, preload, use3d])
 
