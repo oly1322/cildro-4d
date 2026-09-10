@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { gsap, ScrollTrigger, splitChars } from '../../lib/fx.js'
-import { useMotion } from '../../lib/motion.jsx'
+import { useIsMobile, useMotion } from '../../lib/motion.jsx'
 import copy from '../../content/copy.js'
 
 /* ── live clocks ticker ───────────────────────────────────────────────── */
@@ -53,6 +53,7 @@ function Ticker() {
 
 export default function S01Hero({ started }) {
   const { fx, webgl } = useMotion()
+  const mobile = useIsMobile()
   const sectionRef = useRef(null)
   const copyRef = useRef(null)
   const topRef = useRef(null)
@@ -103,7 +104,10 @@ export default function S01Hero({ started }) {
           introTweens.current.forEach((t) => t.progress(1))
           introTweens.current = []
         }
-        const fade = Math.max(0, 1 - self.progress * 2.2)
+        // phones: fade finishes by ~29% of the hero (vs 45%) so the dissolve
+        // never overlaps the board starting to move — the two together were
+        // the residual first-scroll lag. Desktop keeps the original pacing.
+        const fade = Math.max(0, 1 - self.progress * (mobile ? 3.5 : 2.2))
         if (fade <= 0 && lastFade <= 0) return // fully faded: zero work per frame
         if (fade > 0 && lastFade > 0 && Math.abs(fade - lastFade) < 0.003) return
         lastFade = fade
@@ -128,7 +132,7 @@ export default function S01Hero({ started }) {
       st.kill()
       els.forEach((el) => (el.style.willChange = ''))
     }
-  }, [fx])
+  }, [fx, mobile])
 
   const wa = `https://wa.me/${copy.contact.phoneRaw}`
 
