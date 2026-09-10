@@ -12,14 +12,14 @@
   ],
   "redirects": [
     {
-      "source": "/:path*",
+      "source": "/(.*)",
       "has": [
         {
           "type": "host",
           "value": "b2b.cildroplywood.ro"
         }
       ],
-      "destination": "https://cildroplywood.ro/:path*",
+      "destination": "https://cildroplywood.ro/$1",
       "permanent": true
     },
     {
