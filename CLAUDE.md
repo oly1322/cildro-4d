@@ -156,6 +156,11 @@ desktop. All branching lives in Experience.jsx's useFrame:
   2. ScrollTrigger's built-in `load` auto-refresh is disabled
      (`ScrollTrigger.config` in fx.js, no 'load' in autoRefreshEvents) —
      App's scroll-idle scheduler owns load-time refreshes (4 s deadline).
+  3.4. Behind-the-curtain JIT warm-up: on xp:rig-ready, App sweeps scrollY
+     0 -> 1.1vh -> 0 over ~48 frames so the whole scroll pipeline runs
+     dozens of iterations before the first real gesture (JSC compiles hot
+     code only after it runs). Preloader gates on xp:warmed (2.5s failsafe).
+     Sweep must stay inside the hero — deeper fires section reveals.
   3.5. Hero copy fades as TWO promoted layers (top copy + bottom CTAs, not one
      fullscreen layer incl. the transparent middle); intro char tweens finish
      instantly on first scroll; fade writes deduped (S01Hero.jsx).

@@ -98,6 +98,53 @@ export default function App() {
     return () => window.removeEventListener('keydown', onKey)
   }, [started, fx])
 
+  // JIT/pipeline warm-up behind the curtain: once the rig is ready, sweep
+  // the page through the hero scroll range and back (~48 frames) so every
+  // handler on the scroll path — ScrollTrigger scrub, the hero fade, HUD,
+  // the scene's useFrame with real pose inputs — executes dozens of times
+  // BEFORE the user's first gesture. JavaScriptCore only compiles hot code
+  // after it has run; without this, the user's first scrolls execute
+  // interpreted and read as "the hero lags, then it's fine". The sweep is
+  // invisible (opaque curtain), stays inside the hero (never deep enough
+  // to fire section reveals), and always restores scrollY 0. The preloader
+  // gates on xp:warmed so the curtain can't lift mid-sweep.
+  useEffect(() => {
+    if (!use3d) return
+    let raf = 0
+    let timer = 0
+    let done = false
+    const finish = () => {
+      if (done) return
+      done = true
+      cancelAnimationFrame(raf)
+      window.scrollTo(0, 0)
+      window.dispatchEvent(new Event('xp:warmed'))
+    }
+    const onReady = () => {
+      const depth = window.innerHeight * 1.1
+      const FRAMES = 48
+      let k = 0
+      const step = () => {
+        if (done) return
+        k++
+        const tri = k <= FRAMES / 2 ? k / (FRAMES / 2) : 2 - k / (FRAMES / 2)
+        window.scrollTo(0, Math.max(0, depth * tri))
+        if (k < FRAMES) raf = requestAnimationFrame(step)
+        else finish()
+      }
+      raf = requestAnimationFrame(step)
+      // failsafe: never leave the page scrolled or the preloader gated
+      // (hidden tabs suspend rAF; timers still fire)
+      timer = setTimeout(finish, 2500)
+    }
+    window.addEventListener('xp:rig-ready', onReady, { once: true })
+    return () => {
+      window.removeEventListener('xp:rig-ready', onReady)
+      clearTimeout(timer)
+      finish()
+    }
+  }, [use3d])
+
   useEffect(() => {
     const cleanup = initReveals(mainRef.current, { reduced: !fx })
     const t = setTimeout(() => ScrollTrigger.refresh(), 400)
