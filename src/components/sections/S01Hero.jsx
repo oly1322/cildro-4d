@@ -104,10 +104,7 @@ export default function S01Hero({ started }) {
           introTweens.current.forEach((t) => t.progress(1))
           introTweens.current = []
         }
-        // phones: fade finishes by ~29% of the hero (vs 45%) so the dissolve
-        // never overlaps the board starting to move — the two together were
-        // the residual first-scroll lag. Desktop keeps the original pacing.
-        const fade = Math.max(0, 1 - self.progress * (mobile ? 3.5 : 2.2))
+        const fade = Math.max(0, 1 - self.progress * 2.2)
         if (fade <= 0 && lastFade <= 0) return // fully faded: zero work per frame
         if (fade > 0 && lastFade > 0 && Math.abs(fade - lastFade) < 0.003) return
         lastFade = fade
